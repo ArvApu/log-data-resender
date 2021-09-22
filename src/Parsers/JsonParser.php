@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Parsers;
+
 class JsonParser
 {
     public function decodeParametersFromObject(array $parameters): array
