@@ -2,11 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Parsers;
+namespace App\LogParsers;
 
-class JsonParser
+abstract class LogParser
 {
-    public function decodeParametersFromObject(array $parameters): array
+    public abstract function parse(array $data): array;
+
+    /**
+     * Decodes every given parameter of object
+     *
+     * @param array $parameters
+     * @return array
+     */
+    protected final function decodeParametersFromObject(array $parameters): array
     {
         foreach ($parameters as $parameter => $value) {
             if (!is_string($value)) {
@@ -39,7 +47,7 @@ class JsonParser
      * @param array $objects
      * @return array
      */
-    public function decodeParametersForObjects(array $objects): array
+    protected final function decodeParametersForObjects(array $objects): array
     {
         foreach ($objects as $key => $value) {
             $objects[$key] = $this->decodeParametersFromObject((array)$value);
@@ -47,5 +55,4 @@ class JsonParser
 
         return $objects;
     }
-
 }

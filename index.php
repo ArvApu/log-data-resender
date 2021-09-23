@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__.'/vendor/autoload.php';
 
 $app = new \App\Kernel(
-    new \App\Parsers\JsonParser(),
+    new \App\LogParsers\PosLogParser(),
     new \GuzzleHttp\Client()
 );
 

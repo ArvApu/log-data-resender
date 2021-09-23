@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Parsers\JsonParser;
+use App\LogParsers\LogParser;
 use GuzzleHttp\Client as Guzzle;
 
 class Kernel
 {
-    private JsonParser $jsonParser;
+    private LogParser $logParser;
     private Guzzle $guzzle;
 
-    public function __construct(JsonParser $jsonParser, Guzzle $guzzle)
+    public function __construct(LogParser $logParser, Guzzle $guzzle)
     {
-        $this->jsonParser = $jsonParser;
+        $this->logParser = $logParser;
         $this->guzzle = $guzzle;
     }
 
@@ -23,6 +23,7 @@ class Kernel
         $options = getopt('f:i:', ['filepath:', 'index:']);
 
         $filepath = $options['f'] ?? $options['filepath'] ?? null;
+        $index    = $options['i'] ?? $options['index'] ?? null;
 
         if ($filepath === null) {
             die('Path to file (filepath) is needed.' . PHP_EOL);
@@ -30,23 +31,9 @@ class Kernel
 
         $fileContent = $this->getFileContents($filepath);
 
-        $parsed = [];
+        $parsed = $this->logParser->parse($fileContent);
 
-        foreach ($fileContent['events'] as $event) {
-            $info = json_decode($event['event']['json']['info']['info'] ?? '', true);
-
-            if ($info === null) {
-                continue;
-            }
-
-            parse_str($info['REQUEST_BODY'], $requestBodyObject);
-
-            array_push($parsed, $this->jsonParser->decodeParametersFromObject($requestBodyObject));
-        }
-
-        $index = $options['i'] ?? $options['index'] ?? null;
-
-        $json = $index === null ? json_encode($parsed) : json_encode($parsed[$index - 1]); // TODO: check if index is not out of bounds
+        $json = $this->transformToJson($parsed, $index);
 
         $this->putContentsToFile('./output/_last.json', $json);
         $this->putContentsToFile('./output/' . basename($filepath), $json);
@@ -63,5 +50,18 @@ class Kernel
         if (!file_put_contents($filename, $content)) {
             die("Oops! Error creating {$filename} file..." . PHP_EOL);
         }
+    }
+
+    private function transformToJson(array $parsed, ?int $index = null): string
+    {
+        if ($index === null) {
+            return json_encode($parsed);
+        }
+
+        if (!isset($parsed[$index - 1])) {
+            die('Index is out of bounds.');
+        }
+
+        return json_encode($parsed[$index - 1]);
     }
 }
