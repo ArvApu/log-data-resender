@@ -6,7 +6,10 @@ namespace App\LogParsers;
 
 abstract class LogParser
 {
-    public abstract function parse(array $data): array;
+    /**
+     * @return ParsedLog[]
+     */
+    public abstract function parse(array $events): array;
 
     /**
      * Decodes every given parameter of object

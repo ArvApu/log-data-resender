@@ -2,7 +2,8 @@
     "name": "arvapu/log-parser",
     "type": "project",
     "require": {
-        "guzzlehttp/guzzle": "^7.3"
+        "guzzlehttp/guzzle": "^7.3",
+        "ext-json": "*"
     },
     "require-dev": {
         "symfony/var-dumper": "^5.3",

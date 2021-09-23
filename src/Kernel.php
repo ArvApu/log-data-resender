@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\LogParsers\LogParser;
+use App\LogParsers\ParsedLog;
 use GuzzleHttp\Client as Guzzle;
 
 class Kernel
@@ -25,15 +26,19 @@ class Kernel
         $filepath = $options['f'] ?? $options['filepath'] ?? null;
         $index    = $options['i'] ?? $options['index'] ?? null;
 
+        if ($index !== null) {
+            $index = (int) $index;
+        }
+
         if ($filepath === null) {
             die('Path to file (filepath) is needed.' . PHP_EOL);
         }
 
         $fileContent = $this->getFileContents($filepath);
 
-        $parsed = $this->logParser->parse($fileContent);
+        $parsedEventLogs = $this->logParser->parse($fileContent['events']);
 
-        $json = $this->transformToJson($parsed, $index);
+        $json = $this->transformToJson($parsedEventLogs, $index);
 
         $this->putContentsToFile('./output/_last.json', $json);
         $this->putContentsToFile('./output/' . basename($filepath), $json);
@@ -52,6 +57,11 @@ class Kernel
         }
     }
 
+    /**
+     * @param ParsedLog[] $parsed
+     * @param int|null $index
+     * @return string
+     */
     private function transformToJson(array $parsed, ?int $index = null): string
     {
         if ($index === null) {
