@@ -11,12 +11,14 @@ use GuzzleHttp\Exception\RequestException;
 class Sender
 {
     private Client $guzzle;
-    private string $apiKey;
+    private ?string $apiKey;
+    private bool $withCheckpoints;
 
-    public function __construct(Client $guzzle, string $apiKey)
+    public function __construct(Client $guzzle)
     {
         $this->guzzle = $guzzle;
-        $this->apiKey = $apiKey;
+        $this->apiKey = null;
+        $this->withCheckpoints = false;
     }
 
     /**
@@ -25,32 +27,34 @@ class Sender
      */
     public function sendData(array $parsedEventLogs)
     {
-        $failed = 0;
-        $alreadyExists = 0;
-        $completed = 0;
+        $results = new ResultsAccumulator();
+
+        if (!isset($this->apiKey)) {
+            die('No API key provided');
+        }
+
         $total = count($parsedEventLogs);
-        $errors = [];
-        $nonPostRequests = 0;
-        $doNotHaveMasterUserId = 0;
 
-        $this->putContentsToFile('./output/_failed.txt', 'Failed ids: ' . PHP_EOL);
+        foreach ($parsedEventLogs as $index => $parsedEventLog) {
 
-        foreach (array_reverse($parsedEventLogs) as $index => $parsedEventLog) {
+            $results->increment('completed');
 
-            $completed++;
-            dump("Progress: $completed/$total");
+            $this->progress($results->getCount('completed'), $total);
+
 
             if ($parsedEventLog->getMethod() !== 'POST') {
-                $nonPostRequests++;
+                $results->increment('not_a_post_request');
                 continue;
             }
 
             if ($parsedEventLog->getMasterUserId() === null) {
-                $doNotHaveMasterUserId++;
-                $this->putContentsToFile(
-                    './output/_failed.txt',
-                    $parsedEventLog->getBody()['id'] . ',' . PHP_EOL,
-                    FILE_APPEND);
+                $results->increment('missing_master_user_id');
+                $results->addMeta('no_mu_id', ['model_id' => $parsedEventLog->getBody()['id']]);
+                continue;
+            }
+
+            if (!$this->checkpoint($parsedEventLog)) {
+                $results->increment('skipped');
                 continue;
             }
 
@@ -69,55 +73,60 @@ class Sender
                         ]
                     ]
                 );
-
             } catch (RequestException $requestException) {
-                $failed++;
+                $results->increment('failed');
 
                 $content = json_decode($requestException->getResponse()->getBody()->getContents());
 
                 $doesAlreadyExist = isset($content->errors->id[0]) && strpos($content->errors->id[0], 'has already been taken') !== false;
 
                 if ($doesAlreadyExist) {
-                    $alreadyExists++;
+                    $results->increment('failed_already_existed');
                 }
 
-                $errors[] = [
-                    'failedAt' => $index,
+                $results->addError([
+                    'failed_at' => $index,
                     'id' => $parsedEventLog->getBody()['id'] ?? null,
-                    'muId' => $parsedEventLog->getMasterUserId(),
-                    'alreadyExists' => $doesAlreadyExist,
-                    'guzzleResponse' => [
-                        'error' => $content->error ?? '',
-                        'errors' => $content->errors ?? '',
-                        'errorCode' => $content->errorCode ?? '',
+                    'master_user_id' => $parsedEventLog->getMasterUserId(),
+                    'already_exists' => $doesAlreadyExist,
+                    'guzzle_response_data' => [
+                        'error'      => $content->error ?? '',
+                        'errors'     => $content->errors ?? '',
+                        'error_code' => $content->errorCode ?? '',
                     ]
-                ];
+                ]);
             }
         }
 
-        $this->putContentsToFile('./output/_errors.json', json_encode($errors));
-
-        dd([
-            'failed' => $failed,
-            'already_exists' => $alreadyExists,
-            'non_post_requests' => $nonPostRequests,
-            'do_not_have_master_user_id' => $doNotHaveMasterUserId,
-        ]);
+        return $results;
     }
 
-    // TODO: duplicate - move to class
-    private function putContentsToFile(string $filename, $content, int $flag = 0)
+    public function setApiKey(string $apiKey): self
     {
-        if (!file_put_contents($filename, $content, $flag)) {
-            die("Oops! Error creating {$filename} file..." . PHP_EOL);
+        $this->apiKey = $apiKey;
+
+        return $this;
+    }
+
+    private function checkpoint(?ParsedLog $parsedEventLog = null): bool
+    {
+        if (!$this->withCheckpoints) {
+            return true;
         }
-    }
 
-    private function checkpoint(ParsedLog $parsedEventLog): bool
-    {
+        if ($parsedEventLog === null) {
+            trim(fgets(STDIN));
+            return true;
+        }
+
         echo 'Going to do ' . $parsedEventLog->getMethod() .
             ' request to '  . $parsedEventLog->getUrl() .
             ' url for '     . $parsedEventLog->getMasterUserId() . PHP_EOL;
+
+        $string = "id = \"{$parsedEventLog->getBody()['id']}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
+
+        echo($string . PHP_EOL);
+        shell_exec('echo ' . escapeshellarg($string) . ' | pbcopy');
 
         echo 'Continue? [yes/no/abort]' . PHP_EOL;
 
@@ -128,5 +137,10 @@ class Sender
         }
 
         return $input === 'yes' || $input === 'y';
+    }
+
+    private function progress(int $done, int $total): void
+    {
+        echo('Progress: '. $done .'/'. $total . PHP_EOL);
     }
 }

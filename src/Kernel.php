@@ -4,83 +4,43 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\LogParsers\LogParser;
-use App\LogParsers\ParsedLog;
-use GuzzleHttp\Client as Guzzle;
+use App\LogParsers\POSLogParser;
 
 class Kernel
 {
-    private LogParser $logParser;
-    private Guzzle $guzzle;
+    private FilesManager $filesManager;
+    private Sender $sender;
 
-    public function __construct(LogParser $logParser, Guzzle $guzzle)
+    public function __construct(FilesManager $filesManager, Sender $sender)
     {
-        $this->logParser = $logParser;
-        $this->guzzle = $guzzle;
+        $this->filesManager = $filesManager;
+        $this->sender = $sender;
     }
 
     public function run()
     {
-        $options = getopt('f:i:k:', ['filepath:', 'index:', 'key:']);
+        $options = getopt('f:k:', ['filepath:', 'key:']);
 
         $filepath = $options['f'] ?? $options['filepath'] ?? null;
-        $index    = $options['i'] ?? $options['index'] ?? null;
         $apiKey   = $options['k'] ?? $options['key'] ?? null;
-
-        if ($index !== null) {
-            $index = (int) $index;
-        }
 
         if ($filepath === null) {
             die('Path to file (filepath) is needed.' . PHP_EOL);
         }
 
-        $fileContent = $this->getFileContents($filepath);
+        $fileContent     = $this->filesManager->getFileContents($filepath);
+        $parsedEventLogs = (new POSLogParser())->parse($fileContent['events']);
 
-        $parsedEventLogs = $this->logParser->parse($fileContent['events']);
-
-        $json = $this->transformToJson($parsedEventLogs, $index);
-
-        $this->putContentsToFile('./output/_last.json', $json);
-        $this->putContentsToFile('./output/' . basename($filepath), $json);
+        $this->filesManager->putContentsToFile('_last.json', json_encode($parsedEventLogs));
+        $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));
 
         // Cleanup to save memory;
-        unset($json);
-        unset($fileContent);
+        unset($fileContent, $json);
 
-        $sender = new Sender($this->guzzle, $apiKey);
+        $results = $this->sender->setApiKey($apiKey)->sendData($parsedEventLogs);
 
-        $sender->sendData($parsedEventLogs);
-    }
-
-    private function getFileContents(string $filepath)
-    {
-        $file = file_get_contents($filepath);
-        return json_decode($file, true);
-    }
-
-    private function putContentsToFile(string $filename, $content)
-    {
-        if (!file_put_contents($filename, $content)) {
-            die("Oops! Error creating {$filename} file..." . PHP_EOL);
-        }
-    }
-
-    /**
-     * @param ParsedLog[] $parsed
-     * @param int|null $index
-     * @return string
-     */
-    private function transformToJson(array $parsed, ?int $index = null): string
-    {
-        if ($index === null) {
-            return json_encode($parsed);
-        }
-
-        if (!isset($parsed[$index - 1])) {
-            die('Index is out of bounds.');
-        }
-
-        return json_encode($parsed[$index - 1]);
+        print_r($results->getCounts());
+        $this->filesManager->putContentsToFile('_errors.json', json_encode($results->getErrors()));
+        $this->filesManager->putContentsToFile('_no_mu_id.json', json_encode($results->getMeta('no_mu_id')));
     }
 }
