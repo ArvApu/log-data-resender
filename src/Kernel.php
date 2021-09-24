@@ -21,10 +21,11 @@ class Kernel
 
     public function run()
     {
-        $options = getopt('f:i:', ['filepath:', 'index:']);
+        $options = getopt('f:i:k:', ['filepath:', 'index:', 'key:']);
 
         $filepath = $options['f'] ?? $options['filepath'] ?? null;
         $index    = $options['i'] ?? $options['index'] ?? null;
+        $apiKey   = $options['k'] ?? $options['key'] ?? null;
 
         if ($index !== null) {
             $index = (int) $index;
@@ -42,6 +43,14 @@ class Kernel
 
         $this->putContentsToFile('./output/_last.json', $json);
         $this->putContentsToFile('./output/' . basename($filepath), $json);
+
+        // Cleanup to save memory;
+        unset($json);
+        unset($fileContent);
+
+        $sender = new Sender($this->guzzle, $apiKey);
+
+        $sender->sendData($parsedEventLogs);
     }
 
     private function getFileContents(string $filepath)
