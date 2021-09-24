@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App;
 
 use App\LogParsers\POSLogParser;
+use GetOpt\ArgumentException;
+use GetOpt\GetOpt;
+use GetOpt\Operand;
 
 class Kernel
 {
@@ -19,14 +22,10 @@ class Kernel
 
     public function run()
     {
-        $options = getopt('f:k:', ['filepath:', 'key:']);
+        $input = $this->getCommandLineInput();
 
-        $filepath = $options['f'] ?? $options['filepath'] ?? null;
-        $apiKey   = $options['k'] ?? $options['key'] ?? null;
-
-        if ($filepath === null) {
-            die('Path to file (filepath) is needed.' . PHP_EOL);
-        }
+        $filepath = $input->getOperand('filepath');
+        $apiKey   = $input->getOperand('api_key');
 
         $fileContent     = $this->filesManager->getFileContents($filepath);
         $parsedEventLogs = (new POSLogParser())->parse($fileContent['events']);
@@ -35,12 +34,41 @@ class Kernel
         $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));
 
         // Cleanup to save memory;
-        unset($fileContent, $json);
+        unset($fileContent);
 
         $results = $this->sender->setApiKey($apiKey)->sendData($parsedEventLogs);
+
+        // Cleanup to save memory;
+        unset($parsedEventLogs);
 
         print_r($results->getCounts());
         $this->filesManager->putContentsToFile('_errors.json', json_encode($results->getErrors()));
         $this->filesManager->putContentsToFile('_no_mu_id.json', json_encode($results->getMeta('no_mu_id')));
+    }
+
+    private function getCommandLineInput(): GetOpt
+    {
+        $getopt = new GetOpt();
+
+        $operandApiKey = new Operand('api_key', Operand::REQUIRED);
+        $operandApiKey->setDescription('Api key used for authorization when doing HTTP requests.');
+        $operandApiKey->setValidation('is_string');
+
+        $operandFilePath = new Operand('filepath', Operand::REQUIRED);
+        $operandFilePath->setDescription('Path to file with input data.');
+        $operandFilePath->setValidation('is_string');
+
+        $getopt->addOperands([
+            $operandApiKey,
+            $operandFilePath,
+        ]);
+
+        try {
+            $getopt->process();
+        } catch (ArgumentException $argumentException) {
+            die($argumentException->getMessage() . PHP_EOL);
+        }
+
+        return $getopt;
     }
 }
