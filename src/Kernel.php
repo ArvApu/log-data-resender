@@ -19,7 +19,7 @@ class Kernel
     ) {
     }
 
-    public function run()
+    public function run(): void
     {
         $input = $this->getCommandLineInput();
 
