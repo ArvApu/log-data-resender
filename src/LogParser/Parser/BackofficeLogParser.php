@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\LogParsers;
+namespace App\LogParser\Parser;
+
+use App\LogParser\LogParser;
+use App\LogParser\ParsedLog;
 
 class BackofficeLogParser extends LogParser
 {

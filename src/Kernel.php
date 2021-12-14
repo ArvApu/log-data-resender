@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\LogParsers\BackofficeLogParser;
+use App\LogParser\Parser\BackofficeLogParser;
 use GetOpt\ArgumentException;
 use GetOpt\GetOpt;
 use GetOpt\Operand;
