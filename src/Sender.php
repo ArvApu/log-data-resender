@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\LogParsers\ParsedLog;
+use App\LogParser\ParsedLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -104,7 +104,7 @@ class Sender
         return $this;
     }
 
-    public function withCheckpoints(): self
+    public function useCheckpoints(): self
     {
         $this->withCheckpoints = true;
 

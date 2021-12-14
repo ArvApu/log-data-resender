@@ -8,6 +8,7 @@ use App\LogParser\LogParserFactory;
 use GetOpt\ArgumentException;
 use GetOpt\GetOpt;
 use GetOpt\Operand;
+use GetOpt\Option;
 
 class Kernel
 {
@@ -22,11 +23,16 @@ class Kernel
     {
         $input = $this->getCommandLineInput();
 
-        $filepath = $input->getOperand('filepath');
-        $apiKey   = $input->getOperand('api_key');
+        $apiKey     = $input->getOperand('api_key');
+        $parserType = $input->getOperand('parser');
+        $filepath   = $input->getOperand('filepath');
+
+        if ($input->getOption('checkpoints') !== null) {
+            $this->sender->useCheckpoints();
+        }
 
         $fileContent     = $this->filesManager->getFileContents($filepath);
-        $parsedEventLogs = $this->logParserFactory->getParser('bo')->parse($fileContent['events']);
+        $parsedEventLogs = $this->logParserFactory->getParser($parserType)->parse($fileContent['events']);
 
         $this->filesManager->putContentsToFile('_last.json', json_encode($parsedEventLogs));
         $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));
@@ -48,18 +54,26 @@ class Kernel
     {
         $getopt = new GetOpt();
 
+        /* Operands */
         $operandApiKey = new Operand('api_key', Operand::REQUIRED);
         $operandApiKey->setDescription('Api key used for authorization when doing HTTP requests.');
         $operandApiKey->setValidation('is_string');
+
+        $operandParser = new Operand('parser', Operand::REQUIRED);
+        $operandParser->setDescription('Type of parser that should be used to parse logs.');
+        $operandParser->setValidation('is_string');
 
         $operandFilePath = new Operand('filepath', Operand::REQUIRED);
         $operandFilePath->setDescription('Path to file with input data.');
         $operandFilePath->setValidation('is_string');
 
-        $getopt->addOperands([
-            $operandApiKey,
-            $operandFilePath,
-        ]);
+        $getopt->addOperands([$operandApiKey, $operandParser, $operandFilePath]);
+
+        /* Options */
+        $optionCheckpoint = new Option('c', 'checkpoints');
+        $optionCheckpoint->setDescription('Enable checkpoints between requests.');
+
+        $getopt->addOptions([$optionCheckpoint]);
 
         try {
             $getopt->process();
