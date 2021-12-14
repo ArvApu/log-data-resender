@@ -2,3 +2,4 @@
 output
 input
 /vendor/
+.phpunit.result.cache
