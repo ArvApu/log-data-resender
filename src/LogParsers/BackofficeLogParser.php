@@ -17,7 +17,12 @@ class BackofficeLogParser extends LogParser
                 continue;
             }
 
-            array_push($parsed, $this->decodeParametersFromObject($params));
+            $parsed[] = new ParsedLog(
+                $this->decodeParametersFromObject($params),
+                $event['event']['json']['request']['method'],
+                $event['event']['json']['request']['host'] . $event['event']['json']['request']['url'],
+                $event['event']['json']['user']['id'],
+            );
         }
 
         return $parsed;

@@ -10,15 +10,12 @@ use GuzzleHttp\Exception\RequestException;
 
 class Sender
 {
-    private Client $guzzle;
-    private ?string $apiKey;
-    private bool $withCheckpoints;
+    private ?string $apiKey = null;
+    private bool $withCheckpoints = false;
 
-    public function __construct(Client $guzzle)
-    {
-        $this->guzzle = $guzzle;
-        $this->apiKey = null;
-        $this->withCheckpoints = false;
+    public function __construct(
+        private Client $client,
+    ) {
     }
 
     /**
@@ -41,7 +38,6 @@ class Sender
 
             $this->progress($results->getCount('completed'), $total);
 
-
             if ($parsedEventLog->getMethod() !== 'POST') {
                 $results->increment('not_a_post_request');
                 continue;
@@ -59,7 +55,7 @@ class Sender
             }
 
             try {
-                $this->guzzle->request(
+                $this->client->request(
                     $parsedEventLog->getMethod(),
                     $parsedEventLog->getUrl(),
                     [
@@ -69,16 +65,16 @@ class Sender
                             'Content-Type' => 'application/json',
                             'Cookie' => 'PHPSESSID=d75513pkj0g0uje6c1lc9ald2z',
                             'Wallmob-Api-Key' => $this->apiKey,
-                            'Wallmob-Overwrite-Id' => $parsedEventLog->getMasterUserId()
-                        ]
-                    ]
+                            'Wallmob-Overwrite-Id' => $parsedEventLog->getMasterUserId(),
+                        ],
+                    ],
                 );
             } catch (RequestException $requestException) {
                 $results->increment('failed');
 
                 $content = json_decode($requestException->getResponse()->getBody()->getContents());
 
-                $doesAlreadyExist = isset($content->errors->id[0]) && strpos($content->errors->id[0], 'has already been taken') !== false;
+                $doesAlreadyExist = isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken');
 
                 if ($doesAlreadyExist) {
                     $results->increment('failed_already_existed');
@@ -104,6 +100,13 @@ class Sender
     public function setApiKey(string $apiKey): self
     {
         $this->apiKey = $apiKey;
+
+        return $this;
+    }
+
+    public function withCheckpoints(): self
+    {
+        $this->withCheckpoints = true;
 
         return $this;
     }

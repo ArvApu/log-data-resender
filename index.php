@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 require_once __DIR__.'/vendor/autoload.php';
 
-$app = new \App\Kernel(
-    new \App\FilesManager(__DIR__),
-    new \App\Sender(
-        new \GuzzleHttp\Client()
-    )
+use App\FilesManager;
+use App\Kernel;
+use App\Sender;
+use GuzzleHttp\Client;
+
+$app = new Kernel(
+    new FilesManager(__DIR__),
+    new Sender(new Client()),
 );
 
 $app->run();

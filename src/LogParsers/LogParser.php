@@ -30,7 +30,8 @@ abstract class LogParser
                 continue;
             }
 
-            if (is_array($decodedParameterValue)) { // Array means that there are more values that can be objects
+            // Array means that there are more values that can be objects
+            if (is_array($decodedParameterValue)) {
                 $decodedParameterValue = $this->decodeParametersForObjects($decodedParameterValue);
             }
 

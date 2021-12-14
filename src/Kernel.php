@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\LogParsers\POSLogParser;
+use App\LogParsers\BackofficeLogParser;
 use GetOpt\ArgumentException;
 use GetOpt\GetOpt;
 use GetOpt\Operand;
 
 class Kernel
 {
-    private FilesManager $filesManager;
-    private Sender $sender;
-
-    public function __construct(FilesManager $filesManager, Sender $sender)
-    {
-        $this->filesManager = $filesManager;
-        $this->sender = $sender;
+    public function __construct(
+        private FilesManager $filesManager,
+        private Sender $sender,
+    ) {
     }
 
     public function run()
@@ -28,7 +25,7 @@ class Kernel
         $apiKey   = $input->getOperand('api_key');
 
         $fileContent     = $this->filesManager->getFileContents($filepath);
-        $parsedEventLogs = (new POSLogParser())->parse($fileContent['events']);
+        $parsedEventLogs = (new BackofficeLogParser())->parse($fileContent['events']);
 
         $this->filesManager->putContentsToFile('_last.json', json_encode($parsedEventLogs));
         $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));

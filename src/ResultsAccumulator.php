@@ -6,16 +6,9 @@ namespace App;
 
 class ResultsAccumulator
 {
-    private array $counts;
-    private array $errors;
-    private array $meta;
-
-    public function __construct()
-    {
-        $this->counts = [];
-        $this->errors = [];
-        $this->meta   = [];
-    }
+    private array $counts = [];
+    private array $errors = [];
+    private array $meta = [];
 
     public function getCount(string $id): int
     {
@@ -43,12 +36,12 @@ class ResultsAccumulator
 
     public function addError(array $error): void
     {
-        array_push($this->errors, $error);
+        $this->errors[] = $error;
     }
 
     public function addMeta(string $id, array $meta): void
     {
-        array_push($this->meta[$id], $meta);
+        $this->meta[$id][] = $meta;
     }
 
     public function getMeta(?string $id = null): array

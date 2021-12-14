@@ -6,23 +6,12 @@ namespace App\LogParsers;
 
 class ParsedLog implements \JsonSerializable
 {
-    private array $body;
-    private string $method;
-    private string $url;
-    private ?string $masterUserId;
-
-    /**
-     * @param array $body
-     * @param string $method
-     * @param string $url
-     * @param string|null $masterUserId
-     */
-    public function __construct(array $body, string $method, string $url, ?string $masterUserId = null)
-    {
-        $this->body = $body;
-        $this->method = $method;
-        $this->url = $url;
-        $this->masterUserId = $masterUserId;
+    public function __construct(
+        private array $body,
+        private string $method,
+        private string $url,
+        private ?string $masterUserId = null,
+    ) {
     }
 
     /**
