@@ -144,6 +144,10 @@ class Sender
 
     private function progress(int $done, int $total): void
     {
-        echo('Progress: '. $done .'/'. $total . PHP_EOL);
+        if ($done >= $total || $this->withCheckpoints) {
+            echo("\rProgress: ". $done .'/'. $total . PHP_EOL);
+        } else {
+            echo("\rProgress: ". $done .'/'. $total);
+        }
     }
 }
