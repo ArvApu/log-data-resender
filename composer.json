@@ -25,5 +25,14 @@
             "name": "Arvydas Apulskis",
             "email": "arvydas.apulskis@vimsa.com"
         }
-    ]
+    ],
+    "scripts": {
+        "test": [
+            "phpunit --color=always"
+        ],
+        "test:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-clover=\"output/coverage.xml\""
+        ]
+    }
 }

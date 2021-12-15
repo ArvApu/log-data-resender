@@ -111,14 +111,12 @@ class Sender
         return $this;
     }
 
+    /**
+     * @return bool return true to pass this checkpoint, false to stop
+     */
     private function checkpoint(?ParsedLog $parsedEventLog = null): bool
     {
-        if (!$this->withCheckpoints) {
-            return true;
-        }
-
-        if ($parsedEventLog === null) {
-            trim(fgets(STDIN));
+        if (!$this->withCheckpoints || $parsedEventLog === null) {
             return true;
         }
 
@@ -128,7 +126,7 @@ class Sender
 
         $string = "id = \"{$parsedEventLog->getBody()['id']}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
 
-        echo($string . PHP_EOL);
+        echo $string . PHP_EOL ;
         shell_exec('echo ' . escapeshellarg($string) . ' | pbcopy');
 
         echo 'Continue? [yes/no/abort]' . PHP_EOL;
@@ -145,9 +143,9 @@ class Sender
     private function progress(int $done, int $total): void
     {
         if ($done >= $total || $this->withCheckpoints) {
-            echo("\rProgress: ". $done .'/'. $total . PHP_EOL);
+            echo "\rProgress: ". $done .'/'. $total . PHP_EOL;
         } else {
-            echo("\rProgress: ". $done .'/'. $total);
+            echo "\rProgress: ". $done .'/'. $total;
         }
     }
 }

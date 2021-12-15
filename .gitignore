@@ -3,3 +3,5 @@ output
 input
 /vendor/
 .phpunit.result.cache
+.phpunit.cache
+.scannerwork
