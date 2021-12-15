@@ -38,13 +38,13 @@ class ParsedLog implements \JsonSerializable
         return $this->url;
     }
 
-    public function jsonSerialize(): array
-    {
-        return $this->getBody();
-    }
-
     public function getMasterUserId(): ?string
     {
         return $this->masterUserId;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->getBody();
     }
 }
