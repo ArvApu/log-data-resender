@@ -52,5 +52,6 @@ class ResultsAccumulatorTest extends TestCase
         $accumulator->addMeta('meta_1', ['meta' => 'message']);
 
         $this->assertEquals(['meta_1' => [['meta' => 'message']]], $accumulator->getMeta());
+        $this->assertEquals([['meta' => 'message']], $accumulator->getMeta('meta_1'));
     }
 }

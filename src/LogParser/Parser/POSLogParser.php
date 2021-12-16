@@ -24,7 +24,7 @@ class POSLogParser extends LogParser
             parse_str($info['REQUEST_BODY'], $requestBody);
 
             $parsed[] = new ParsedLog(
-                $this->decodeParametersFromObject($requestBody),
+                $requestBody,
                 $info['REQUEST_METHOD'],
                 urldecode($info['REQUEST_URL']),
                 $this->getMasterUserId($event, $info),

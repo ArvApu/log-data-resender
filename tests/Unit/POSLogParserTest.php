@@ -34,49 +34,50 @@ class POSLogParserTest extends TestCase
         return [
             new ParsedLog(
                 [
-                    'attributes' => [
+                    'attributes' => json_encode([
                         [
-                            'is_shared_bill' => 1,
+                            'is_shared_bill' => '1',
                         ],
                         [
-                            'register_sequence_number' => 1
+                            'register_sequence_number' => '1'
                         ],
                         [
-                            'shared_bill_description' => 5
+                            'shared_bill_description' => '5'
                         ],
                         [
                             'source' => 'Extenda GO POS'
                         ],
                         [
-                            'to_go' => 0
+                            'to_go' => '0'
                         ],
-                    ],
+                    ]),
                     'coordinate_precision' => '',
-                    'coupons' => [],
+                    'coupons' => '[]',
                     'currency' => '',
                     'customer_id' => '',
-                    'discounts' => [],
+                    'discounts' => '[]',
                     'email' => '',
-                    'fees' => [],
+                    'fees' => '[]',
                     'grant_purchased_coupons' => '',
                     'id' => '53FECB42-70E6-4DC8-B784-DE580BF4AEEB',
-                    'is_paid' => 0,
-                    'is_preorder' => 1,
+                    'is_paid' => '0',
+                    'is_preorder' => '1',
                     'lat' => '',
                     'lng' => '',
-                    'order_line_items' => [
+                    'order_line_items' => json_encode([
                         [
-                            'addon_line_items' => [],
-                            'attributes' => [
+                            'addon_line_items' => '[]',
+                            'attributes' => json_encode([
                                 [
-                                    'display_sequence_number' => 1639440746.269
+                                    'display_sequence_number' => '1639440746.269'
                                 ],
                                 [
                                     'vat_rate_id' => '72bd8101-3b65-f9fd-d260-81685cc5c522'
                                 ],
-                            ],
+                            ]),
+                            'comment' => 'Test',
                             'cost_price' => 0,
-                            'discounts' => [],
+                            'discounts' => '[]',
                             'effective_amount' => 19900,
                             'effective_sales_tax_rate' => null,
                             'effective_vat_rate' => 0.25,
@@ -93,7 +94,7 @@ class POSLogParserTest extends TestCase
                             'sales_tax_amount' => null,
                             'sales_tax_rate' => null,
                             'sequence_number' => null,
-                            'sku' => 24,
+                            'sku' => '24',
                             'stock_location_id' => 'eae4b36c-2d80-34a1-9b5d-d5374432bef0',
                             'total_line_amount' => 19900,
                             'type_id' => 400,
@@ -102,20 +103,20 @@ class POSLogParserTest extends TestCase
                             'user_name' => null,
                             'vat_amount' => 3980,
                             'vat_rate' => 0.25,
-                            'comment' => 'Test',
                         ],
                         [
-                            'addon_line_items' => [],
-                            'attributes' => [
+                            'addon_line_items' => '[]',
+                            'attributes' => json_encode([
                                 [
-                                    'display_sequence_number' => 1639440760.201
+                                    'display_sequence_number' => '1639440760.201',
                                 ],
                                 [
-                                    'vat_rate_id' => '72bd8101-3b65-f9fd-d260-81685cc5c522'
+                                    'vat_rate_id' => '72bd8101-3b65-f9fd-d260-81685cc5c522',
                                 ],
-                            ],
+                            ]),
+                            'comment' => null,
                             'cost_price' => 0,
-                            'discounts' => [],
+                            'discounts' => '[]',
                             'effective_amount' => 4200,
                             'effective_sales_tax_rate' => null,
                             'effective_vat_rate' => 0.25,
@@ -132,7 +133,7 @@ class POSLogParserTest extends TestCase
                             'sales_tax_amount' => null,
                             'sales_tax_rate' => null,
                             'sequence_number' => null,
-                            'sku' => 154,
+                            'sku' => '154',
                             'stock_location_id' => 'eae4b36c-2d80-34a1-9b5d-d5374432bef0',
                             'total_line_amount' => 4200,
                             'type_id' => 400,
@@ -141,18 +142,16 @@ class POSLogParserTest extends TestCase
                             'user_name' => null,
                             'vat_amount' => 840,
                             'vat_rate' => 0.25,
-                            'comment' => null,
                         ],
-                    ],
+                    ]),
                     'register_id' => 'fe3c928a-5415-476d-71ed-95aa69480cb8',
                     'register_name' => 'Kasse Restaurant 1',
                     'sales_tax_label' => '',
                     'shipping_information' => '',
                     'shop_id' => '27b00b07-fef5-5991-c146-69fba92c301f',
                     'shop_name' => 'ABC Restaurant',
-                    'timestamp' => 1639440764,
-                    'transactions' => [
-                    ],
+                    'timestamp' => '1639440764',
+                    'transactions' => '[]',
                     'user_id' => '',
                     'user_name' => 'Faker Maker',
                     'vat_label' => '',
@@ -163,8 +162,7 @@ class POSLogParserTest extends TestCase
             ),
             new ParsedLog(
                 [
-                    'attributes' => [
-                    ],
+                    'attributes' => '[]',
                     'currency' => 'NOK',
                     'email' => '',
                     'id' => 'A00A880C-2CB4-475F-8C1D-F4E76C2A409F',
@@ -172,7 +170,7 @@ class POSLogParserTest extends TestCase
                     'shop_id' => '328d2de2-e69e-72f8-b6a1-a12ea4d88c7f',
                     'comment' => '',
                     'deposited_gift_card' => '',
-                    'deposited_voucher' => [
+                    'deposited_voucher' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -180,8 +178,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'diff_card' => [
+                    ]),
+                    'diff_card' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -189,8 +187,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'diff_cash' => [
+                    ]),
+                    'diff_cash' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -198,8 +196,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'diff_miscellaneous' => [
+                    ]),
+                    'diff_miscellaneous' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -207,9 +205,9 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'dynamic_values' => [],
-                    'end_bank' => [
+                    ]),
+                    'dynamic_values' => '{}',
+                    'end_bank' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -217,8 +215,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'end_card' => [
+                    ]),
+                    'end_card' => json_encode([
                         [
                             'amount' => 279900,
                             'base_currency' => 'NOK',
@@ -226,8 +224,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'end_cash' => [
+                    ]),
+                    'end_cash' => json_encode([
                         [
                             'amount' => 216100,
                             'base_currency' => 'NOK',
@@ -235,11 +233,11 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
+                    ]),
                     'end_dintero' => '',
                     'end_gift_card' => '',
                     'end_invoice' => '',
-                    'end_loyalty_points' => [
+                    'end_loyalty_points' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -247,8 +245,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'end_miscellaneous' => [
+                    ]),
+                    'end_miscellaneous' => json_encode([
                         [
                             'amount' => 8000,
                             'base_currency' => 'NOK',
@@ -256,12 +254,12 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
+                    ]),
                     'end_mobile_pay' => '',
-                    'end_time' => 1631365841,
+                    'end_time' => '1631365841',
                     'end_user_id' => '05f40180-9521-8623-a47d-066a7e059fee',
                     'end_vipps' => '',
-                    'end_voucher' => [
+                    'end_voucher' => json_encode([
                         [
                             'amount' => 0,
                             'base_currency' => 'NOK',
@@ -269,8 +267,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'start_cash' => [
+                    ]),
+                    'start_cash' => json_encode([
                         [
                             'amount' => 216100,
                             'base_currency' => 'NOK',
@@ -278,8 +276,8 @@ class POSLogParserTest extends TestCase
                             'currency' => 'NOK',
                             'denomination' => null,
                         ],
-                    ],
-                    'start_time' => 1631346130,
+                    ]),
+                    'start_time' => '1631346130',
                     'start_user_id' => '05f40180-9521-8623-a47d-066a7e059fee',
                 ],
                 'PUT',

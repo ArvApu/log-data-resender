@@ -33,41 +33,41 @@ class BackofficeLogParserTest extends TestCase
         return [
             new ParsedLog(
                 [
-                    'attributes' => [
+                    'attributes' => json_encode([
                         [
                             'source' => 'Extenda GO POS',
                         ]
-                    ],
+                    ]),
                     'coordinate_precision' => '',
-                    'coupons' => [],
+                    'coupons' => '[]',
                     'currency' => 'NOK',
                     'customer_id' => '',
-                    'discounts' => [],
-                    'dynamic_values' => [],
+                    'discounts' => '[]',
+                    'dynamic_values' => '{}',
                     'email' => '',
-                    'fees' => [],
+                    'fees' => '[]',
                     'grant_purchased_coupons' => '',
                     'id' => '89B72460-6D6F-4C4F-9CA0-46D15FFE4CD6',
-                    'is_paid' => 1,
-                    'is_preorder' => 0,
+                    'is_paid' => '1',
+                    'is_preorder' => '0',
                     'lat' => '',
                     'lng' => '',
-                    'order_line_items' => [
+                    'order_line_items' => json_encode([
                         [
-                            'addon_line_items' => [
+                            'addon_line_items' => json_encode([
                                 [
-                                    'addon_line_items' => [],
-                                    'attributes' => [
+                                    'addon_line_items' => '[]',
+                                    'attributes' => json_encode([
                                         [
-                                            'display_sequence_number' => 1639440898.021,
+                                            'display_sequence_number' => '1639440898.021',
                                         ],
                                         [
                                             'vat_rate_id' => '30223f05-d3ec-8dad-e5ab-40f999e64a68',
                                         ],
-                                    ],
+                                    ]),
                                     'cost_price' => 200,
-                                    'discounts' => [],
-                                    'dynamic_values' => [],
+                                    'discounts' => '[]',
+                                    'dynamic_values' => '{}',
                                     'effective_amount' => 200,
                                     'effective_sales_tax_rate' => null,
                                     'effective_vat_rate' => 0,
@@ -84,7 +84,7 @@ class BackofficeLogParserTest extends TestCase
                                     'sales_tax_amount' => null,
                                     'sales_tax_rate' => null,
                                     'sequence_number' => null,
-                                    'sku' => 1977777,
+                                    'sku' => '1977777',
                                     'stock_location_id' => 'f668e284-ff5e-a317-a0b5-c016a42d919f',
                                     'total_line_amount' => 1200,
                                     'type_id' => null,
@@ -94,18 +94,18 @@ class BackofficeLogParserTest extends TestCase
                                     'vat_amount' => 0,
                                     'vat_rate' => 0,
                                 ]
-                            ],
-                            'attributes' => [
+                            ]),
+                            'attributes' => json_encode([
                                 [
-                                    'display_sequence_number' => 1639440898.021,
+                                    'display_sequence_number' => '1639440898.021',
                                 ],
                                 [
                                     'vat_rate_id' => 'c5f1aee5-c9ea-5661-ae3e-9f9e45298b3e',
                                 ],
-                            ],
+                            ]),
                             'cost_price' => 1508,
-                            'discounts' => [],
-                            'dynamic_values' => [],
+                            'discounts' => '[]',
+                            'dynamic_values' => '{}',
                             'effective_amount' => 3800,
                             'effective_sales_tax_rate' => null,
                             'effective_vat_rate' => 0.15,
@@ -122,7 +122,7 @@ class BackofficeLogParserTest extends TestCase
                             'sales_tax_amount' => null,
                             'sales_tax_rate' => null,
                             'sequence_number' => null,
-                            'sku' => 7044610778105,
+                            'sku' => '7044610778105',
                             'stock_location_id' => 'f668e284-ff5e-a317-a0b5-c016a42d919f',
                             'total_line_amount' => 22800,
                             'type_id' => 400,
@@ -132,25 +132,25 @@ class BackofficeLogParserTest extends TestCase
                             'vat_amount' => 2974,
                             'vat_rate' => 0.15,
                         ],
-                    ],
+                    ]),
                     'register_id' => '3087610d-d174-6132-7b46-9c9f00cf36d7',
-                    'register_name' => 1,
+                    'register_name' => '1',
                     'sales_tax_label' => 'Kunstavgift',
                     'shipping_information' => '',
                     'shop_id' => 'da909dc2-9353-69f9-0667-5d1a86c9fa9e',
-                    'shop_name' => 726,
-                    'timestamp' => 1639440916,
-                    'transactions' => [
+                    'shop_name' => '726',
+                    'timestamp' => '1639440916',
+                    'transactions' => json_encode([
                         [
                             'additional_data' => null,
-                            'attributes' => [],
+                            'attributes' => '[]',
                             'base_currency' => 'NOK',
                             'base_currency_amount' => 4000,
                             'card_type' => null,
                             'currency' => 'NOK',
                             'currency_amount' => 4000,
                             'debitor_account_id' => null,
-                            'dynamic_values' => [],
+                            'dynamic_values' => '{}',
                             'id' => '0EB34BAD-3A0B-40BC-BA87-9C151B67D107',
                             'order_id' => '89B72460-6D6F-4C4F-9CA0-46D15FFE4CD6',
                             'state' => 'WM_TRANSACTION_STATE_CAPTURED',
@@ -158,7 +158,7 @@ class BackofficeLogParserTest extends TestCase
                             'tender_type_id' => '98f3d740-429f-382b-8b72-3a74f4575648',
                             'type' => 'WM_TRANSACTION_TYPE_MISCELLANEOUS',
                         ],
-                    ],
+                    ]),
                     'user_id' => 'd8b8c814-5953-52bb-a94b-5db88611ca7e',
                     'user_name' => 'GA10040',
                     'vat_label' => 'mva.',
