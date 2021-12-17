@@ -14,7 +14,7 @@ class BackofficeLogParser extends LogParser
         $parsed = [];
 
         foreach ($events as $event) {
-            $params = json_decode($event['event']['json']['info']['api']['params'] ?? '', true);
+            $params = $event['event']['json']['info']['api']['params'] ?? null;
 
             if ($params === null) {
                 continue;
@@ -24,6 +24,7 @@ class BackofficeLogParser extends LogParser
                 $params,
                 $event['event']['json']['request']['method'],
                 $event['event']['json']['request']['host'] . $event['event']['json']['request']['url'],
+                $event['event']['json']['info']['api']['id'],
                 $event['event']['json']['user']['id'],
             );
         }

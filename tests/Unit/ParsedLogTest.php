@@ -14,16 +14,17 @@ class ParsedLogTest extends TestCase
     public function setUp(): void
     {
         $this->fakeParsedLog = new ParsedLog(
-            ['foo' => 'bar'],
+            json_encode(['foo' => 'bar']),
             'GET',
             '127.0.0.1/fake/test',
+            'fake_model_id',
             'faker_master_user_id',
         );
     }
 
     public function testGetBody(): void
     {
-        $this->assertEquals(['foo' => 'bar'], $this->fakeParsedLog->getBody());
+        $this->assertEquals(json_encode(['foo' => 'bar']), $this->fakeParsedLog->getBody());
     }
 
     public function testGetMethod(): void
@@ -36,6 +37,11 @@ class ParsedLogTest extends TestCase
         $this->assertEquals('127.0.0.1/fake/test', $this->fakeParsedLog->getUrl());
     }
 
+    public function testGetModelId(): void
+    {
+        $this->assertEquals('fake_model_id', $this->fakeParsedLog->getModelId());
+    }
+
     public function testGetMasterUserId(): void
     {
         $this->assertEquals('faker_master_user_id', $this->fakeParsedLog->getMasterUserId());
@@ -43,6 +49,15 @@ class ParsedLogTest extends TestCase
 
     public function testJsonSerialize(): void
     {
-        $this->assertEquals(['foo' => 'bar'], $this->fakeParsedLog->jsonSerialize());
+        $this->assertEquals(
+            [
+                'body' => json_encode(['foo' => 'bar']),
+                'method' => 'GET',
+                'url' => '127.0.0.1/fake/test',
+                'model_id' => 'fake_model_id',
+                'master_user_id' => 'faker_master_user_id',
+            ],
+            $this->fakeParsedLog->jsonSerialize()
+        );
     }
 }

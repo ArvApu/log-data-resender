@@ -4,38 +4,37 @@ declare(strict_types=1);
 
 namespace App\LogParser;
 
+use JetBrains\PhpStorm\ArrayShape;
+
 class ParsedLog implements \JsonSerializable
 {
     public function __construct(
-        private array $body,
+        private string $body,
         private string $method,
         private string $url,
+        private string $modelId,
         private ?string $masterUserId = null,
     ) {
     }
 
-    /**
-     * @return array
-     */
-    public function getBody(): array
+    public function getBody(): string
     {
         return $this->body;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @return string
-     */
     public function getUrl(): string
     {
         return $this->url;
+    }
+
+    public function getModelId(): string
+    {
+        return $this->modelId;
     }
 
     public function getMasterUserId(): ?string
@@ -43,8 +42,21 @@ class ParsedLog implements \JsonSerializable
         return $this->masterUserId;
     }
 
+    #[ArrayShape([
+        'body' => 'string',
+        'method' => 'string',
+        'url' => 'string',
+        'model_id' => 'string',
+        'master_user_id' => 'null|string',
+    ])]
     public function jsonSerialize(): array
     {
-        return $this->getBody();
+        return [
+            'body' => $this->getBody(),
+            'method' => $this->getMethod(),
+            'url' => $this->getUrl(),
+            'model_id' => $this->getModelId(),
+            'master_user_id' => $this->getMasterUserId(),
+        ];
     }
 }

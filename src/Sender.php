@@ -38,6 +38,7 @@ class Sender
 
             $this->progress($results->getCount('completed'), $total);
 
+            // Protects from accidentally changing data with update methods (PATCH/PUT).
             if ($parsedEventLog->getMethod() !== 'POST') {
                 $results->increment('not_a_post_request');
                 continue;
@@ -45,7 +46,7 @@ class Sender
 
             if ($parsedEventLog->getMasterUserId() === null) {
                 $results->increment('missing_master_user_id');
-                $results->addMeta('no_mu_id', ['model_id' => $parsedEventLog->getBody()['id']]);
+                $results->addMeta('no_mu_id', ['model_id' => $parsedEventLog->getModelId()]);
                 continue;
             }
 
@@ -59,7 +60,7 @@ class Sender
                     $parsedEventLog->getMethod(),
                     $parsedEventLog->getUrl(),
                     [
-                        'json' => $parsedEventLog->getBody(),
+                        'body' => $parsedEventLog->getBody(),
                         'headers' => [
                             'Accept' => 'application/json',
                             'Content-Type' => 'application/json',
@@ -82,7 +83,7 @@ class Sender
 
                 $results->addError([
                     'failed_at' => $index,
-                    'id' => $parsedEventLog->getBody()['id'] ?? null,
+                    'id' => $parsedEventLog->getModelId(),
                     'master_user_id' => $parsedEventLog->getMasterUserId(),
                     'already_exists' => $doesAlreadyExist,
                     'guzzle_response_data' => [
@@ -124,7 +125,7 @@ class Sender
             ' request to '  . $parsedEventLog->getUrl() .
             ' url for '     . $parsedEventLog->getMasterUserId() . PHP_EOL;
 
-        $string = "id = \"{$parsedEventLog->getBody()['id']}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
+        $string = "id = \"{$parsedEventLog->getModelId()}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
 
         echo $string . PHP_EOL ;
         shell_exec('echo ' . escapeshellarg($string) . ' | pbcopy');

@@ -33,7 +33,7 @@ class POSLogParserTest extends TestCase
     {
         return [
             new ParsedLog(
-                [
+                json_encode([
                     'attributes' => json_encode([
                         [
                             'is_shared_bill' => '1',
@@ -155,20 +155,17 @@ class POSLogParserTest extends TestCase
                     'user_id' => '',
                     'user_name' => 'Faker Maker',
                     'vat_label' => '',
-                ],
+                ]),
                 'POST',
                 'https://localhost.test/orders',
+                '53FECB42-70E6-4DC8-B784-DE580BF4AEEB',
                 'test-cf76-58f5-1601-cb124f0b4dc7',
             ),
             new ParsedLog(
-                [
+                json_encode([
                     'attributes' => '[]',
-                    'currency' => 'NOK',
-                    'email' => '',
-                    'id' => 'A00A880C-2CB4-475F-8C1D-F4E76C2A409F',
-                    'register_id' => 'e80b8c1c-f4c9-bd8c-ba78-9f49f45017fc',
-                    'shop_id' => '328d2de2-e69e-72f8-b6a1-a12ea4d88c7f',
                     'comment' => '',
+                    'currency' => 'NOK',
                     'deposited_gift_card' => '',
                     'deposited_voucher' => json_encode([
                         [
@@ -207,6 +204,7 @@ class POSLogParserTest extends TestCase
                         ],
                     ]),
                     'dynamic_values' => '{}',
+                    'email' => '',
                     'end_bank' => json_encode([
                         [
                             'amount' => 0,
@@ -268,6 +266,9 @@ class POSLogParserTest extends TestCase
                             'denomination' => null,
                         ],
                     ]),
+                    'id' => 'A00A880C-2CB4-475F-8C1D-F4E76C2A409F',
+                    'register_id' => 'e80b8c1c-f4c9-bd8c-ba78-9f49f45017fc',
+                    'shop_id' => '328d2de2-e69e-72f8-b6a1-a12ea4d88c7f',
                     'start_cash' => json_encode([
                         [
                             'amount' => 216100,
@@ -279,9 +280,10 @@ class POSLogParserTest extends TestCase
                     ]),
                     'start_time' => '1631346130',
                     'start_user_id' => '05f40180-9521-8623-a47d-066a7e059fee',
-                ],
+                ]),
                 'PUT',
                 'https://localhost.test/day_tallies/A00A880C-2CB4-475F-8C1D-F4E76C2A409F',
+                'A00A880C-2CB4-475F-8C1D-F4E76C2A409F',
                 'e60a9592-204a-4a85-f8f3-d20881864f78'
             ),
         ];

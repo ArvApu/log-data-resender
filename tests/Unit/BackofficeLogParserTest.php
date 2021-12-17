@@ -32,7 +32,7 @@ class BackofficeLogParserTest extends TestCase
     {
         return [
             new ParsedLog(
-                [
+                json_encode([
                     'attributes' => json_encode([
                         [
                             'source' => 'Extenda GO POS',
@@ -162,9 +162,10 @@ class BackofficeLogParserTest extends TestCase
                     'user_id' => 'd8b8c814-5953-52bb-a94b-5db88611ca7e',
                     'user_name' => 'GA10040',
                     'vat_label' => 'mva.',
-                ],
+                ]),
                 'POST',
                 'https://localhost.test/orders',
+                '89B72460-6D6F-4C4F-9CA0-46D15FFE4CD6',
                 'test-d7e7-d593-70f3-694794e80f05',
             ),
         ];
