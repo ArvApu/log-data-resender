@@ -19,7 +19,7 @@ class Sender
     }
 
     /**
-     * @param ParsedLog[] $parsedEventLogs
+     * @param  ParsedLog[] $parsedEventLogs
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function sendData(array $parsedEventLogs)
@@ -33,7 +33,6 @@ class Sender
         $total = count($parsedEventLogs);
 
         foreach ($parsedEventLogs as $index => $parsedEventLog) {
-
             $results->increment('completed');
 
             $this->progress($results->getCount('completed'), $total);
@@ -75,7 +74,8 @@ class Sender
 
                 $content = json_decode($requestException->getResponse()->getBody()->getContents());
 
-                $doesAlreadyExist = isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken');
+                $doesAlreadyExist = isset($content->errors->id[0])
+                    && str_contains($content->errors->id[0], 'has already been taken');
 
                 if ($doesAlreadyExist) {
                     $results->increment('failed_already_existed');
@@ -125,10 +125,10 @@ class Sender
             ' request to '  . $parsedEventLog->getUrl() .
             ' url for '     . $parsedEventLog->getMasterUserId() . PHP_EOL;
 
-        $string = "id = \"{$parsedEventLog->getModelId()}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
+        $pb = "id = \"{$parsedEventLog->getModelId()}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
 
-        echo $string . PHP_EOL ;
-        shell_exec('echo ' . escapeshellarg($string) . ' | pbcopy');
+        echo $pb . PHP_EOL ;
+        shell_exec('echo ' . escapeshellarg($pb) . ' | pbcopy');
 
         echo 'Continue? [yes/no/abort]' . PHP_EOL;
 
@@ -144,9 +144,9 @@ class Sender
     private function progress(int $done, int $total): void
     {
         if ($done >= $total || $this->withCheckpoints) {
-            echo "\rProgress: ". $done .'/'. $total . PHP_EOL;
+            echo "\rProgress: {$done} / {$total}" . PHP_EOL;
         } else {
-            echo "\rProgress: ". $done .'/'. $total;
+            echo "\rProgress: {$done} / {$total}";
         }
     }
 }

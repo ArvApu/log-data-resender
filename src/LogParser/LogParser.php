@@ -9,15 +9,15 @@ abstract class LogParser
     /**
      * @return ParsedLog[]
      */
-    public abstract function parse(array $events): array;
+    abstract public function parse(array $events): array;
 
     /**
      * Decodes every given parameter of object
      *
-     * @param array $parameters
+     * @param  array $parameters
      * @return array
      */
-    protected final function decodeParametersFromObject(array $parameters): array
+    final protected function decodeParametersFromObject(array $parameters): array
     {
         foreach ($parameters as $parameter => $value) {
             if (!is_string($value)) {
@@ -51,7 +51,7 @@ abstract class LogParser
      * @param array $objects
      * @return array
      */
-    protected final function decodeParametersForObjects(array $objects): array
+    final protected function decodeParametersForObjects(array $objects): array
     {
         foreach ($objects as $key => $value) {
             $objects[$key] = $this->decodeParametersFromObject((array)$value);

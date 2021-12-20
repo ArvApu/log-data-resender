@@ -14,7 +14,6 @@ class POSLogParser extends LogParser
         $parsed = [];
 
         foreach ($events as $event) {
-
             $info = $this->getInformation($event);
 
             if ($info === null) {
@@ -76,7 +75,7 @@ class POSLogParser extends LogParser
             return null;
         }
 
-        $data = trim(substr($rawLogMessage, $start, $end-$start));
+        $data = trim(substr($rawLogMessage, $start, $end - $start));
 
         return str_replace('"', '', $data);
     }
