@@ -42,6 +42,7 @@ class ParsedLog implements \JsonSerializable
         return $this->masterUserId;
     }
 
+    /** @phpstan-ignore-next-line */
     #[ArrayShape([
         'body' => 'string',
         'method' => 'string',
