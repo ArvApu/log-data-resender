@@ -90,7 +90,7 @@ class Sender
                         'error'      => $content->error ?? '',
                         'errors'     => $content->errors ?? '',
                         'error_code' => $content->errorCode ?? '',
-                    ]
+                    ],
                 ]);
             }
         }

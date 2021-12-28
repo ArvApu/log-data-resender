@@ -62,7 +62,7 @@ class POSLogParser extends LogParser
             'REQUEST_BODY' => $requestBody,
             'REQUEST_METHOD' => $requestMethod,
             'REQUEST_URL' => $requestURL,
-            'master_user_id' => $logMessage['wallmob']['master_user_id']
+            'master_user_id' => $logMessage['wallmob']['master_user_id'],
         ];
     }
 

@@ -36,7 +36,7 @@ abstract class LogParser
             }
 
             if (is_object($decodedParameterValue)) {
-                $decodedParameterValue = $this->decodeParametersFromObject((array)$decodedParameterValue);
+                $decodedParameterValue = $this->decodeParametersFromObject((array) $decodedParameterValue);
             }
 
             $parameters[$parameter] = $decodedParameterValue;
@@ -54,7 +54,7 @@ abstract class LogParser
     final protected function decodeParametersForObjects(array $objects): array
     {
         foreach ($objects as $key => $value) {
-            $objects[$key] = $this->decodeParametersFromObject((array)$value);
+            $objects[$key] = $this->decodeParametersFromObject((array) $value);
         }
 
         return $objects;

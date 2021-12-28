@@ -34,7 +34,7 @@
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --color=always --coverage-clover=\"output/coverage.xml\" --log-junit=\"output/tests.xml\""
         ],
-        "analysis:phpcs": "phpcs --standard=PSR12 --report=json src > output/phpcs.json || exit 0",
+        "analysis:phpcs": "phpcs -p || exit 0",
         "analysis:phpstan": "phpstan analyse --level=5 --error-format=json src > output/phpstan.json || exit 0",
         "analysis:full": [
             "@analysis:phpcs",

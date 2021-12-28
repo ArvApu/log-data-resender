@@ -37,12 +37,12 @@ class Kernel
         $this->filesManager->putContentsToFile('_last.json', json_encode($parsedEventLogs));
         $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));
 
-        // Cleanup to save memory;
+        // Cleanup to save memory
         unset($fileContent);
 
         $results = $this->sender->setApiKey($apiKey)->sendData($parsedEventLogs);
 
-        // Cleanup to save memory;
+        // Cleanup to save memory
         unset($parsedEventLogs);
 
         print_r($results->getCounts());
@@ -54,7 +54,7 @@ class Kernel
     {
         $getopt = new GetOpt();
 
-        /* Operands */
+        // Operands
         $operandApiKey = new Operand('api_key', Operand::REQUIRED);
         $operandApiKey->setDescription('Api key used for authorization when doing HTTP requests.');
         $operandApiKey->setValidation('is_string');
@@ -69,7 +69,7 @@ class Kernel
 
         $getopt->addOperands([$operandApiKey, $operandParser, $operandFilePath]);
 
-        /* Options */
+        // Options
         $optionCheckpoint = new Option('c', 'checkpoints');
         $optionCheckpoint->setDescription('Enable checkpoints between requests.');
 
