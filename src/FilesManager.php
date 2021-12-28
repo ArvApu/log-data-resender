@@ -24,6 +24,11 @@ class FilesManager
     public function getFileContents(string $filepath): array
     {
         $file = file_get_contents($filepath);
+
+        if ($file === false) {
+            return [];
+        }
+
         return json_decode($file, true);
     }
 }

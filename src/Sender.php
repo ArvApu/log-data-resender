@@ -22,7 +22,7 @@ class Sender
      * @param  ParsedLog[] $parsedEventLogs
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function sendData(array $parsedEventLogs)
+    public function sendData(array $parsedEventLogs): ResultsAccumulator
     {
         $results = new ResultsAccumulator();
 
@@ -72,7 +72,7 @@ class Sender
             } catch (RequestException $requestException) {
                 $results->increment('failed');
 
-                $content = json_decode($requestException->getResponse()->getBody()->getContents());
+                $content = json_decode((string) $requestException->getResponse()?->getBody()->getContents());
 
                 $doesAlreadyExist = isset($content->errors->id[0])
                     && str_contains($content->errors->id[0], 'has already been taken');
@@ -132,7 +132,7 @@ class Sender
 
         echo 'Continue? [yes/no/abort]' . PHP_EOL;
 
-        $input = trim(fgets(STDIN));
+        $input = trim((string) fgets(STDIN));
 
         if ($input === 'abort') {
             die('Aborted' . PHP_EOL);

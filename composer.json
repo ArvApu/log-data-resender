@@ -32,10 +32,10 @@
         "test": "phpunit --color=always",
         "test:coverage": [
             "@putenv XDEBUG_MODE=coverage",
-            "phpunit --color=always --coverage-clover=\"output/coverage.xml\" --log-junit=\"output/tests.xml\""
+            "phpunit --color=always --coverage-clover=\"output/analysis/coverage.xml\" --log-junit=\"output/analysis/tests.xml\""
         ],
         "analysis:phpcs": "phpcs -p || exit 0",
-        "analysis:phpstan": "phpstan analyse --level=5 --error-format=json src > output/phpstan.json || exit 0",
+        "analysis:phpstan": "phpstan analyse --error-format=json > output/analysis/phpstan.json || exit 0",
         "analysis:full": [
             "@analysis:phpcs",
             "@analysis:phpstan",
