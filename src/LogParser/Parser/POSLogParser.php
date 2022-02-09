@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\LogParser\Parser;
 
-use App\LogParser\LogParser;
+use App\LogParser\LogParserInterface;
 use App\LogParser\ParsedLog;
 
-class POSLogParser extends LogParser
+class POSLogParser implements LogParserInterface
 {
     public function parse(array $events): array
     {

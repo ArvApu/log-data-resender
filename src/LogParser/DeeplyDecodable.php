@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace App\LogParser;
 
-abstract class LogParser
+trait DeeplyDecodable
 {
-    /**
-     * @return ParsedLog[]
-     */
-    abstract public function parse(array $events): array;
-
     /**
      * Decodes every given parameter of object
      *

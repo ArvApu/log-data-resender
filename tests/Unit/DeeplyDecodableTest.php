@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\LogParser\LogParser;
+use App\LogParser\DeeplyDecodable;
 use Tests\TestCase;
 
-class LogParserTest extends TestCase
+class DeeplyDecodableTest extends TestCase
 {
     public function testDecodeParametersFromObject(): void
     {
-        $logParser = new class extends LogParser {
+        $logParser = new class {
+            use DeeplyDecodable;
+
             public function parse(array $events): array
             {
                 /*
