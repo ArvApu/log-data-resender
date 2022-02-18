@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\LogParser\ParsedLog;
+use App\LogsParser\ParsedLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 

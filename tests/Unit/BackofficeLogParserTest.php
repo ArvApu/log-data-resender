@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\LogParser\ParsedLog;
-use App\LogParser\Parser\BackofficeLogParser;
+use App\LogsParser\ParsedLog;
+use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
 use Tests\TestCase;
 
 class BackofficeLogParserTest extends TestCase
 {
     public function testParse(): void
     {
-        $parser = new BackofficeLogParser();
+        $parser = new BackofficeLogTypeParser();
 
         $data = file_get_contents($this->getUnitFixturesDir('bo-logs-mock.json'));
 

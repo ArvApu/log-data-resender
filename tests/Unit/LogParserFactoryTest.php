@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\LogParser\LogParserFactory;
-use App\LogParser\Parser\BackofficeLogParser;
-use App\LogParser\Parser\POSLogParser;
+use App\LogsParser\LogParserFactory;
+use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
+use App\LogsParser\LogTypeParser\POSLogTypeParser;
 use Tests\TestCase;
 
 class LogParserFactoryTest extends TestCase
@@ -21,7 +21,7 @@ class LogParserFactoryTest extends TestCase
     public function testAbleToReturnBackofficeLogParser(): void
     {
         $this->assertInstanceOf(
-            BackofficeLogParser::class,
+            BackofficeLogTypeParser::class,
             $this->factory->getParser(LogParserFactory::BO_LOG_PARSER_TYPE),
         );
     }
@@ -29,7 +29,7 @@ class LogParserFactoryTest extends TestCase
     public function testAbleToReturnPOSLogParser(): void
     {
         $this->assertInstanceOf(
-            POSLogParser::class,
+            POSLogTypeParser::class,
             $this->factory->getParser(LogParserFactory::POS_LOG_PARSER_TYPE),
         );
     }

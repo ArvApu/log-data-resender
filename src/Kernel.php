@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\LogParser\LogParserFactory;
+use App\LogsParser\LogsParser;
 use GetOpt\ArgumentException;
 use GetOpt\GetOpt;
 use GetOpt\Operand;
@@ -14,8 +14,8 @@ class Kernel
 {
     public function __construct(
         private FilesManager $filesManager,
-        private Sender $sender,
-        private LogParserFactory $logParserFactory,
+        private Sender       $sender,
+        private LogsParser   $logsParser,
     ) {
     }
 
@@ -24,26 +24,31 @@ class Kernel
         $input = $this->getCommandLineInput();
 
         $apiKey     = $input->getOperand('api_key');
-        $parserType = $input->getOperand('parser');
         $filepath   = $input->getOperand('filepath');
+
+        $parser = $input->getOption('parser');
+
+        if ($parser !== null) {
+            $this->logsParser->setParsingStrategy($parser);
+        }
 
         if ($input->getOption('checkpoints') !== null) {
             $this->sender->useCheckpoints();
         }
 
-        $parsedEventLogs = $this->logParserFactory->getParser($parserType)->parse($this->getEvents($filepath));
+        $parsedLogs = $this->logsParser->parse($this->getLogs($filepath));
 
-        if (empty($parsedEventLogs)) {
+        if (empty($parsedLogs)) {
             die('No logs to resend' . PHP_EOL);
         }
 
-        $this->filesManager->putContentsToFile('_last.json', json_encode($parsedEventLogs));
-        $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));
+        $this->filesManager->putContentsToFile('_last.json', json_encode($parsedLogs));
+        $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedLogs));
 
-        $results = $this->sender->setApiKey($apiKey)->sendData($parsedEventLogs);
+        $results = $this->sender->setApiKey($apiKey)->sendData($parsedLogs);
 
         // Cleanup to save memory
-        unset($parsedEventLogs);
+        unset($parsedLogs);
 
         print_r($results->getCounts());
         $this->filesManager->putContentsToFile('_errors.json', json_encode($results->getErrors()));
@@ -59,21 +64,21 @@ class Kernel
         $operandApiKey->setDescription('Api key used for authorization when doing HTTP requests.');
         $operandApiKey->setValidation('is_string');
 
-        $operandParser = new Operand('parser', Operand::REQUIRED);
-        $operandParser->setDescription('Type of parser that should be used to parse logs.');
-        $operandParser->setValidation('is_string');
-
         $operandFilePath = new Operand('filepath', Operand::REQUIRED);
         $operandFilePath->setDescription('Path to file with input data.');
         $operandFilePath->setValidation('is_string');
 
-        $getopt->addOperands([$operandApiKey, $operandParser, $operandFilePath]);
+        $getopt->addOperands([$operandApiKey, $operandFilePath]);
 
         // Options
         $optionCheckpoint = new Option('c', 'checkpoints');
         $optionCheckpoint->setDescription('Enable checkpoints between requests.');
 
-        $getopt->addOptions([$optionCheckpoint]);
+        $optionParser = new Option('p', 'parser', GetOpt::REQUIRED_ARGUMENT);
+        $optionParser->setDescription('Type of parser that should be used to parse logs.');
+        $optionParser->setValidation('is_string');
+
+        $getopt->addOptions([$optionCheckpoint, $optionParser]);
 
         try {
             $getopt->process();
@@ -84,7 +89,7 @@ class Kernel
         return $getopt;
     }
 
-    private function getEvents(string $filepath): iterable
+    private function getLogs(string $filepath): iterable
     {
         $fileContents = $this->filesManager->getFileContents($filepath);
 
