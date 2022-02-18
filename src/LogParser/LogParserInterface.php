@@ -7,8 +7,7 @@ namespace App\LogParser;
 interface LogParserInterface
 {
     /**
-     * @param array $events
      * @return ParsedLog[]
      */
-    public function parse(array $events): array;
+    public function parse(iterable $events): array;
 }

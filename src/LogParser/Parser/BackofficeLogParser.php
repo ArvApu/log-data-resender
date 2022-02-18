@@ -9,7 +9,7 @@ use App\LogParser\ParsedLog;
 
 class BackofficeLogParser implements LogParserInterface
 {
-    public function parse(array $events): array
+    public function parse(iterable $events): array
     {
         $parsed = [];
 

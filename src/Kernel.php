@@ -31,14 +31,14 @@ class Kernel
             $this->sender->useCheckpoints();
         }
 
-        $events          = $this->getEvents($filepath);
-        $parsedEventLogs = $this->logParserFactory->getParser($parserType)->parse($events);
+        $parsedEventLogs = $this->logParserFactory->getParser($parserType)->parse($this->getEvents($filepath));
+
+        if (empty($parsedEventLogs)) {
+            die('No logs to resend' . PHP_EOL);
+        }
 
         $this->filesManager->putContentsToFile('_last.json', json_encode($parsedEventLogs));
         $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedEventLogs));
-
-        // Cleanup to save memory
-        unset($events);
 
         $results = $this->sender->setApiKey($apiKey)->sendData($parsedEventLogs);
 
@@ -84,10 +84,10 @@ class Kernel
         return $getopt;
     }
 
-    private function getEvents(string $filepath): array
+    private function getEvents(string $filepath): iterable
     {
         $fileContents = $this->filesManager->getFileContents($filepath);
 
-        return $fileContents['events'] ?? $fileContents['data'];
+        yield from $fileContents['events'] ?? $fileContents['data'];
     }
 }
