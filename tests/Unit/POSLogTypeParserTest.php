@@ -9,7 +9,7 @@ use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
 use App\LogsParser\LogTypeParser\POSLogTypeParser;
 use Tests\TestCase;
 
-class POSLogParserTest extends TestCase
+class POSLogTypeParserTest extends TestCase
 {
     public function testParse(): void
     {
@@ -21,7 +21,12 @@ class POSLogParserTest extends TestCase
             $this->fail('Missing data fixture.');
         }
 
-        $results  = $parser->parse(json_decode($data, true));
+        $results = [];
+
+        foreach (json_decode($data, true) as $log) {
+            $results[] = $parser->parse($log);
+        }
+
         $expected = $this->getExpectedResults();
 
         $this->assertContainsOnlyInstancesOf(ParsedLog::class, $results);

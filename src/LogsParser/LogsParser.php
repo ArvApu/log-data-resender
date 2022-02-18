@@ -11,9 +11,9 @@ use App\LogsParser\LogTypeParser\POSLogTypeParser;
 
 class LogsParser
 {
-    private const DD_LOG_TYPE_PARSER = 'pos';
-    private const BO_LOG_TYPE_PARSER  = 'bo';
-    private const POS_LOG_TYPE_PARSER  = 'dd';
+    public const DD_LOG_TYPE_PARSER = 'pos';
+    public const BO_LOG_TYPE_PARSER  = 'bo';
+    public const POS_LOG_TYPE_PARSER  = 'dd';
 
     /**
      * @var LogTypeParserInterface[]
@@ -64,7 +64,7 @@ class LogsParser
         return $parsed;
     }
 
-    public function parseLog(array $log): ?ParsedLog
+    private function parseLog(array $log): ?ParsedLog
     {
         if ($this->parser !== null) {
             return $this->parser->parse($log);

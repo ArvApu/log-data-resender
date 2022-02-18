@@ -8,7 +8,7 @@ use App\LogsParser\ParsedLog;
 use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
 use Tests\TestCase;
 
-class BackofficeLogParserTest extends TestCase
+class BackofficeLogTypeParserTest extends TestCase
 {
     public function testParse(): void
     {
@@ -20,7 +20,12 @@ class BackofficeLogParserTest extends TestCase
             $this->fail('Missing data fixture.');
         }
 
-        $results  = $parser->parse(json_decode($data, true));
+        $results = [];
+
+        foreach (json_decode($data, true) as $log) {
+            $results[] = $parser->parse($log);
+        }
+
         $expected = $this->getExpectedResults();
 
         $this->assertContainsOnlyInstancesOf(ParsedLog::class, $results);
