@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\LogParser\ParsedLog;
+use App\LogsParser\ParsedLog;
 use Tests\TestCase;
 
 class ParsedLogTest extends TestCase

@@ -2,36 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\LogParser\Parser;
+namespace App\LogsParser\LogTypeParser;
 
-use App\LogParser\LogParserInterface;
-use App\LogParser\ParsedLog;
+use App\LogsParser\ParsedLog;
 
-class POSLogParser implements LogParserInterface
+class POSLogTypeParser implements LogTypeParserInterface
 {
-    public function parse(iterable $events): array
+    public function parse(array $event): ?ParsedLog
     {
-        $parsed = [];
+        $info = $this->getInformation($event);
 
-        foreach ($events as $event) {
-            $info = $this->getInformation($event);
-
-            if ($info === null) {
-                continue;
-            }
-
-            parse_str($info['REQUEST_BODY'], $requestBody);
-
-            $parsed[] = new ParsedLog(
-                (string) json_encode($requestBody),
-                $info['REQUEST_METHOD'],
-                urldecode($info['REQUEST_URL']),
-                $requestBody['id'],
-                $this->getMasterUserId($event, $info),
-            );
+        if ($info === null || !isset($info['REQUEST_BODY'])) {
+            return null;
         }
 
-        return $parsed;
+        parse_str($info['REQUEST_BODY'], $requestBody);
+
+        return new ParsedLog(
+            (string) json_encode($requestBody),
+            $info['REQUEST_METHOD'],
+            urldecode($info['REQUEST_URL']),
+            $requestBody['id'],
+            $this->getMasterUserId($event, $info),
+        );
     }
 
     private function getInformation(array $event): ?array
