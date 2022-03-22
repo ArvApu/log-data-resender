@@ -7,7 +7,7 @@ namespace App\LogsParser;
 use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
 use App\LogsParser\LogTypeParser\DataDogLogTypeParser;
 use App\LogsParser\LogTypeParser\LogTypeParserInterface;
-use App\LogsParser\LogTypeParser\POSLogTypeParser;
+use App\LogsParser\LogTypeParser\PosLogTypeParser;
 
 class LogsParser
 {
@@ -30,7 +30,7 @@ class LogsParser
         $this->parsers = [
             self::DD_LOG_TYPE_PARSER => new DataDogLogTypeParser(),
             self::BO_LOG_TYPE_PARSER => new BackofficeLogTypeParser(),
-            self::POS_LOG_TYPE_PARSER => new POSLogTypeParser(),
+            self::POS_LOG_TYPE_PARSER => new PosLogTypeParser(),
         ];
     }
 

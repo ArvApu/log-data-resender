@@ -6,14 +6,14 @@ namespace Tests\Unit;
 
 use App\LogsParser\ParsedLog;
 use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
-use App\LogsParser\LogTypeParser\POSLogTypeParser;
+use App\LogsParser\LogTypeParser\PosLogTypeParser;
 use Tests\TestCase;
 
-class POSLogTypeParserTest extends TestCase
+class PosLogTypeParserTest extends TestCase
 {
     public function testParse(): void
     {
-        $parser = new POSLogTypeParser();
+        $parser = new PosLogTypeParser();
 
         $data = file_get_contents($this->getUnitFixturesDir('pos-logs-mock.json'));
 

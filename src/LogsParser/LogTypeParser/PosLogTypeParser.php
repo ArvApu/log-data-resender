@@ -6,7 +6,7 @@ namespace App\LogsParser\LogTypeParser;
 
 use App\LogsParser\ParsedLog;
 
-class POSLogTypeParser implements LogTypeParserInterface
+class PosLogTypeParser implements LogTypeParserInterface
 {
     public function parse(array $event): ?ParsedLog
     {
