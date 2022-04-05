@@ -93,6 +93,6 @@ class Kernel
     {
         $fileContents = $this->filesManager->getFileContents($filepath);
 
-        yield from $fileContents['events'] ?? $fileContents['data'];
+        return yield from ($fileContents['events'] ?? $fileContents['data']);
     }
 }

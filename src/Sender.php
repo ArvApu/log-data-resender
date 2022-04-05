@@ -74,18 +74,15 @@ class Sender
 
                 $content = json_decode((string) $requestException->getResponse()?->getBody()->getContents());
 
-                $doesAlreadyExist = isset($content->errors->id[0])
-                    && str_contains($content->errors->id[0], 'has already been taken');
-
-                if ($doesAlreadyExist) {
+                if (isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken')) {
                     $results->increment('failed_already_existed');
+                    continue;
                 }
 
                 $results->addError([
                     'failed_at' => $index,
                     'id' => $parsedEventLog->getModelId(),
                     'master_user_id' => $parsedEventLog->getMasterUserId(),
-                    'already_exists' => $doesAlreadyExist,
                     'guzzle_response_data' => [
                         'error'      => $content->error ?? '',
                         'errors'     => $content->errors ?? '',
