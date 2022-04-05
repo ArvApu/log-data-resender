@@ -5,3 +5,4 @@ input
 .phpunit.result.cache
 .phpunit.cache
 .scannerwork
+.env

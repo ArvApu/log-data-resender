@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\LogsParser;
 
 use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
+use App\LogsParser\LogTypeParser\CloudWatchLogTypeParser;
 use App\LogsParser\LogTypeParser\DataDogLogTypeParser;
 use App\LogsParser\LogTypeParser\LogTypeParserInterface;
 use App\LogsParser\LogTypeParser\PosLogTypeParser;
 
 class LogsParser
 {
-    public const DD_LOG_TYPE_PARSER = 'pos';
+    public const DD_LOG_TYPE_PARSER = 'dd';
     public const BO_LOG_TYPE_PARSER  = 'bo';
-    public const POS_LOG_TYPE_PARSER  = 'dd';
+    public const POS_LOG_TYPE_PARSER  = 'pos';
+    public const CLOUDWATCH_LOG_TYPE_PARSER  = 'cw';
 
     /**
      * @var LogTypeParserInterface[]
@@ -29,6 +31,7 @@ class LogsParser
     {
         $this->parsers = [
             self::DD_LOG_TYPE_PARSER => new DataDogLogTypeParser(),
+            self::CLOUDWATCH_LOG_TYPE_PARSER => new CloudWatchLogTypeParser(),
             self::BO_LOG_TYPE_PARSER => new BackofficeLogTypeParser(),
             self::POS_LOG_TYPE_PARSER => new PosLogTypeParser(),
         ];
