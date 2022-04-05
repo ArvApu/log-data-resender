@@ -4,7 +4,8 @@
     "require": {
         "guzzlehttp/guzzle": "^7.3",
         "ext-json": "*",
-        "ulrichsg/getopt-php": "^4.0"
+        "ulrichsg/getopt-php": "^4.0",
+        "aws/aws-sdk-php": "^3.218"
     },
     "require-dev": {
         "symfony/var-dumper": "^5.3",
