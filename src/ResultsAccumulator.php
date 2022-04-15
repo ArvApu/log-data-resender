@@ -8,7 +8,6 @@ class ResultsAccumulator
 {
     private array $counts = [];
     private array $errors = [];
-    private array $meta = [];
 
     public function getCount(string $id): int
     {
@@ -37,19 +36,5 @@ class ResultsAccumulator
     public function addError(array $error): void
     {
         $this->errors[] = $error;
-    }
-
-    public function addMeta(string $id, array $meta): void
-    {
-        $this->meta[$id][] = $meta;
-    }
-
-    public function getMeta(?string $id = null): array
-    {
-        if ($id === null) {
-            return $this->meta;
-        }
-
-        return $this->meta[$id] ?? [];
     }
 }
