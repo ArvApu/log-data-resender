@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Client\CloudWatch;
 
-use Aws\CloudWatchLogs\CloudWatchLogsClient as CloudWatchClient;
+use Aws\CloudWatchLogs\CloudWatchLogsClient;
 
-class CloudwatchLogsClient
+class CloudWatchClient
 {
-    public function __construct(private CloudWatchClient $client)
+    public function __construct(private CloudWatchLogsClient $client)
     {
     }
 
-    private function getLogs(string $date, string $filterPattern, string $logGroupName, string $logStreamName): iterable
+    public function getLogs(string $date, string $filterPattern, string $logGroupName, string $logStreamName): iterable
     {
         $date = new \DateTime($date);
 
@@ -29,22 +29,15 @@ class CloudwatchLogsClient
             'logStreamNamePrefix' => $logStreamName,
         ];
 
-        $logsCount = 0;
-
         // AWS might return empty events list, but with "next token", which indicates that they are still loading data
         do {
             $logs = $this->client->filterLogEvents($logArguments);
 
             foreach ($logs['events'] ?? [] as $event) {
-                $logsCount++;
-                echo "\rLogs: {$logsCount}";
-
                 yield json_decode($event['message'], true);
             }
 
             $logArguments['nextToken'] = $logs['nextToken'];
         } while ($logs['nextToken'] !== null);
-
-        echo PHP_EOL;
     }
 }
