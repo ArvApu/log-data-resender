@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Client\DataDog;
 
-class Filter implements \JsonSerializable
+class DataDogFilter implements \JsonSerializable
 {
     public function __construct(
         private string $query,
