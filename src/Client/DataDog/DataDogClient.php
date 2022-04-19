@@ -19,7 +19,7 @@ class DataDogClient
     ) {
     }
 
-    public function getLogs(Filter $filter): iterable
+    public function getLogs(DataDogFilter $filter): iterable
     {
         $data = [
             'filter' => $filter,

@@ -12,22 +12,10 @@ class CloudWatchClient
     {
     }
 
-    public function getLogs(string $date, string $filterPattern, string $logGroupName, string $logStreamName): iterable
+    public function getLogs(CloudWatchFilter $cloudWatchFilter): iterable
     {
-        $date = new \DateTime($date);
-
-        echo "Logs from day: {$date->format('Y-m-d H:i:s')} ({$date->getTimestamp()})" . PHP_EOL;
-
-        $beginOfDay = strtotime('today', $date->getTimestamp());
-        $endOfDay   = strtotime('tomorrow', $beginOfDay) - 1;
-
-        $logArguments = [
-            'startTime' => $beginOfDay * 1000,
-            'endTime' => $endOfDay * 1000,
-            'filterPattern' => $filterPattern,
-            'logGroupName' => $logGroupName,
-            'logStreamNamePrefix' => $logStreamName,
-        ];
+        // TODO: change it to -> to array method??
+        $logArguments = $cloudWatchFilter->jsonSerialize();
 
         // AWS might return empty events list, but with "next token", which indicates that they are still loading data
         do {

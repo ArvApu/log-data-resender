@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Client\DataDog\Filter;
+use App\Client\DataDog\DataDogFilter;
 use Tests\TestCase;
 
 class DataDogFilterTest extends TestCase
 {
     public function testCanBeCreatedFromJsonString(): void
     {
-        $result = Filter::fromJsonString(
+        $result = DataDogFilter::fromJsonString(
             '{"filter":{"query":"@environment.name:prod -status:(warn OR info) @environment.type:telenor @request.method:POST @request.url:\"/orders\" @info.message:\"Couldn\'t create model ORDERS.\"","from":1646548674837,"to":1649140674837}}'
         );
 
@@ -29,6 +29,6 @@ class DataDogFilterTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        Filter::fromJsonString('invalid');
+        DataDogFilter::fromJsonString('invalid');
     }
 }
