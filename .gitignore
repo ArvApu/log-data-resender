@@ -1,6 +1,4 @@
 .idea
-output
-input
 .phpunit.result.cache
 .phpunit.cache
 .scannerwork

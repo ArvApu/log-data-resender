@@ -70,13 +70,6 @@ class ResendLogsCommand extends Command
 
         $parsedLogs = $this->logsParser->parse($logs);
 
-        if (empty($parsedLogs)) {
-            die('No logs to resend' . PHP_EOL);
-        }
-
-        $this->filesManager->putContentsToFile('_last.json', json_encode($parsedLogs));
-        $this->filesManager->putContentsToFile(basename($filepath), json_encode($parsedLogs));
-
         try {
             $results = $this->sender->sendData($parsedLogs);
         } catch (\Exception $exception) {
@@ -87,9 +80,11 @@ class ResendLogsCommand extends Command
         // Cleanup to save memory
         unset($parsedLogs);
 
-        print_r($results->getCounts());
+        foreach ($results->getCounts() as $id => $count) {
+            $output->writeln("<info>{$id}: {$count}</info>");
+        }
+
         $this->filesManager->putContentsToFile('_errors.json', json_encode($results->getErrors()));
-        $this->filesManager->putContentsToFile('_no_mu_id.json', json_encode($results->getMeta('no_mu_id')));
 
         return Command::SUCCESS;
     }

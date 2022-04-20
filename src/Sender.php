@@ -85,6 +85,8 @@ class Sender
             }
         }
 
+        echo PHP_EOL;
+
         return $results;
     }
 
@@ -143,7 +145,7 @@ class Sender
 
     private function getSessionId(): string
     {
-        $this->sessionId ??= session_create_id();
+        $this->sessionId ??= (string) session_create_id();
 
         return $this->sessionId;
     }
