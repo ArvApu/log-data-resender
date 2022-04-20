@@ -44,14 +44,4 @@ class ResultsAccumulatorTest extends TestCase
 
         $this->assertEquals([['error' => 'message']], $accumulator->getErrors());
     }
-
-    public function testAddMeta(): void
-    {
-        $accumulator = new ResultsAccumulator();
-
-        $accumulator->addMeta('meta_1', ['meta' => 'message']);
-
-        $this->assertEquals(['meta_1' => [['meta' => 'message']]], $accumulator->getMeta());
-        $this->assertEquals([['meta' => 'message']], $accumulator->getMeta('meta_1'));
-    }
 }

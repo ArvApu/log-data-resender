@@ -38,6 +38,10 @@ class LogsParserTest extends TestCase
 
         $results = $this->parser->parse($logs);
 
+        if ($results instanceof \Traversable) {
+            $results = iterator_to_array($results);
+        }
+
         $this->assertEquals($results, $expected);
     }
 
