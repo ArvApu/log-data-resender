@@ -9,14 +9,14 @@ class FilesManager
     private const DEFAULT_OUTPUT_DIRECTORY = 'output';
 
     public function __construct(
-        private string $projectRootPath,
+        private string $projectDir,
         private string $outputDir = self::DEFAULT_OUTPUT_DIRECTORY,
     ) {
     }
 
     public function putContentsToFile(string $filename, mixed $content): void
     {
-        if (!file_put_contents("$this->projectRootPath/$this->outputDir/$filename", $content)) {
+        if (!file_put_contents("$this->projectDir/$this->outputDir/$filename", $content)) {
             die("Oops! Error creating {$filename} file..." . PHP_EOL);
         }
     }

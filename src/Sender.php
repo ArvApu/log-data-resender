@@ -10,11 +10,11 @@ use GuzzleHttp\Exception\RequestException;
 
 class Sender
 {
-    private ?string $apiKey = null;
     private bool $withCheckpoints = false;
 
     public function __construct(
         private Client $client,
+        private string $apiKey,
     ) {
     }
 
@@ -25,10 +25,6 @@ class Sender
     public function sendData(array $parsedEventLogs): ResultsAccumulator
     {
         $results = new ResultsAccumulator();
-
-        if (!isset($this->apiKey)) {
-            die('No API key provided');
-        }
 
         $total = count($parsedEventLogs);
 
@@ -93,13 +89,6 @@ class Sender
         }
 
         return $results;
-    }
-
-    public function setApiKey(string $apiKey): self
-    {
-        $this->apiKey = $apiKey;
-
-        return $this;
     }
 
     public function useCheckpoints(): self
