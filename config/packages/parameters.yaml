@@ -1,0 +1,12 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+
+  app.client.datadog.host: 'https://api.datadoghq.eu/api/v2'
+
+  app.client.cloudwatch.arguments:
+    region: 'eu-west-1'
+    version: 'latest'
+    credentials:
+      key: '%env(AWS_KEY)%'
+      secret: '%env(AWS_SECRET)%'

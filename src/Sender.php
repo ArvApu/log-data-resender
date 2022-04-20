@@ -10,63 +10,54 @@ use GuzzleHttp\Exception\RequestException;
 
 class Sender
 {
-    private ?string $apiKey = null;
+    private string $sessionId;
     private bool $withCheckpoints = false;
 
     public function __construct(
         private Client $client,
+        private string $apiKey,
     ) {
     }
 
     /**
-     * @param  ParsedLog[] $parsedEventLogs
+     * @param ParsedLog[] $parsedLogs
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function sendData(array $parsedEventLogs): ResultsAccumulator
+    public function sendData(iterable $parsedLogs): ResultsAccumulator
     {
         $results = new ResultsAccumulator();
 
-        if (!isset($this->apiKey)) {
-            die('No API key provided');
-        }
-
-        $total = count($parsedEventLogs);
-
-        foreach ($parsedEventLogs as $index => $parsedEventLog) {
+        foreach ($parsedLogs as $index => $parsedLog) {
             $results->increment('completed');
 
-            $this->progress($results->getCount('completed'), $total);
+            $this->progress($results->getCount('completed'));
+
+            // TODO: Log this parsed log with session id to database(sql/nosql) or logging system
 
             // Protects from accidentally changing data with update methods (PATCH/PUT).
-            if ($parsedEventLog->getMethod() !== 'POST') {
+            if ($parsedLog->getMethod() !== 'POST') {
                 $results->increment('not_a_post_request');
                 continue;
             }
 
-            if ($parsedEventLog->getMasterUserId() === null) {
+            if ($parsedLog->getMasterUserId() === null) {
                 $results->increment('missing_master_user_id');
-                $results->addMeta('no_mu_id', ['model_id' => $parsedEventLog->getModelId()]);
+                // TODO: Log this models id to to database(sql/nosql) or logging system
                 continue;
             }
 
-            if (!$this->checkpoint($parsedEventLog)) {
+            if (!$this->checkpoint($parsedLog)) {
                 $results->increment('skipped');
                 continue;
             }
 
             try {
                 $this->client->request(
-                    $parsedEventLog->getMethod(),
-                    $parsedEventLog->getUrl(),
+                    $parsedLog->getMethod(),
+                    $parsedLog->getUrl(),
                     [
-                        'body' => $parsedEventLog->getBody(),
-                        'headers' => [
-                            'Accept' => 'application/json',
-                            'Content-Type' => 'application/json',
-                            'Cookie' => 'PHPSESSID=d75513pkj0g0uje6c1lc9ald2z',
-                            'Wallmob-Api-Key' => $this->apiKey,
-                            'Wallmob-Overwrite-Id' => $parsedEventLog->getMasterUserId(),
-                        ],
+                        'body' => $parsedLog->getBody(),
+                        'headers' => $this->getHeaders($parsedLog),
                     ],
                 );
             } catch (RequestException $requestException) {
@@ -79,10 +70,12 @@ class Sender
                     continue;
                 }
 
+                // TODO: do not log into memory, but into database or straight to file
                 $results->addError([
                     'failed_at' => $index,
-                    'id' => $parsedEventLog->getModelId(),
-                    'master_user_id' => $parsedEventLog->getMasterUserId(),
+                    'id' => $parsedLog->getModelId(),
+                    'master_user_id' => $parsedLog->getMasterUserId(),
+                    'session' => $this->getSessionId(),
                     'guzzle_response_data' => [
                         'error'      => $content->error ?? '',
                         'errors'     => $content->errors ?? '',
@@ -92,14 +85,9 @@ class Sender
             }
         }
 
+        echo PHP_EOL;
+
         return $results;
-    }
-
-    public function setApiKey(string $apiKey): self
-    {
-        $this->apiKey = $apiKey;
-
-        return $this;
     }
 
     public function useCheckpoints(): self
@@ -118,7 +106,8 @@ class Sender
             return true;
         }
 
-        echo 'Going to do ' . $parsedEventLog->getMethod() .
+        echo PHP_EOL .
+            'Going to do ' . $parsedEventLog->getMethod() .
             ' request to '  . $parsedEventLog->getUrl() .
             ' url for '     . $parsedEventLog->getMasterUserId() . PHP_EOL;
 
@@ -138,12 +127,26 @@ class Sender
         return $input === 'yes' || $input === 'y';
     }
 
-    private function progress(int $done, int $total): void
+    private function progress(int $done): void
     {
-        if ($done >= $total || $this->withCheckpoints) {
-            echo "\rProgress: {$done} / {$total}" . PHP_EOL;
-        } else {
-            echo "\rProgress: {$done} / {$total}";
-        }
+        echo "\rProgress: {$done}";
+    }
+
+    private function getHeaders(ParsedLog $parsedLog): array
+    {
+        return [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Cookie' => "PHPSESSID={$this->getSessionId()}",
+            'Wallmob-Api-Key' => $this->apiKey,
+            'Wallmob-Overwrite-Id' => $parsedLog->getMasterUserId(),
+        ];
+    }
+
+    private function getSessionId(): string
+    {
+        $this->sessionId ??= (string) session_create_id();
+
+        return $this->sessionId;
     }
 }

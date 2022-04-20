@@ -6,7 +6,7 @@
     <file>src</file>
 
     <arg name="extensions" value="php" />
-    <arg name="report-json" value="output/analysis/phpcs.json"/>
+    <arg name="report-json" value="var/analysis/phpcs.json"/>
     <arg name="report-summary"/>
     <arg name="colors"/>
 

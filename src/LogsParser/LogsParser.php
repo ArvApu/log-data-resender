@@ -50,10 +50,8 @@ class LogsParser
     /**
      * @return ParsedLog[]
      */
-    public function parse(iterable $logs): array
+    public function parse(iterable $logs): iterable
     {
-        $parsed = [];
-
         foreach ($logs as $log) {
             $parsedLog = $this->parseLog($log);
 
@@ -61,10 +59,8 @@ class LogsParser
                 continue;
             }
 
-            $parsed[] = $parsedLog;
+            yield $parsedLog;
         }
-
-        return $parsed;
     }
 
     private function parseLog(array $log): ?ParsedLog
