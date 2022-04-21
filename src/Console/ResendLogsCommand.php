@@ -33,28 +33,43 @@ class ResendLogsCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('checkpoints', 'c', InputOption::VALUE_REQUIRED, 'Enable checkpoints between requests.');
-        $this->addOption('parser', 'p', InputOption::VALUE_REQUIRED, 'Type of parser that should be used to parse logs.');
-        $this->addOption(name: 'filepath', mode: InputOption::VALUE_REQUIRED, description: 'Path to file with input data.');
-        $this->addOption('filter', 'f', InputOption::VALUE_OPTIONAL, 'Filter to use for logs provider');
+        $this->addOption(
+            name: 'checkpoints',
+            shortcut: 'c',
+            mode: InputOption::VALUE_REQUIRED,
+            description: 'Enable checkpoints between requests.',
+        );
 
         $this->addOption(
-            'logs_provider',
-            'lp',
-            InputOption::VALUE_OPTIONAL,
-            'If file path is not set DataDog (dd) will be used as default.',
-            'dd' // TODO: dd as const value
+            name: 'parser',
+            shortcut: 'p',
+            mode: InputOption::VALUE_REQUIRED,
+            description: 'Type of parser that should be used to parse logs.',
         );
+
+        $this->addOption(
+            name: 'filter',
+            shortcut: 'f',
+            mode: InputOption::VALUE_REQUIRED,
+            description: 'Filter to use for logs provider. If it is file logs provider this should filepath.',
+        );
+
+        $this->addOption(
+            name: 'logs-provider',
+            mode: InputOption::VALUE_OPTIONAL,
+            description: 'If file path is not set DataDog (dd) will be used as default.',
+            // TODO: dd as const/enum value. Other possible values are: cw (cloudwatch), dd (data dog) and file
+            default: 'dd',
+        );
+
+        // TODO: validate input
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $filepath = $input->getOption('filepath');
         $parser = $input->getOption('parser');
-        $logsProvider = $input->getOption('logs_provider');
+        $logsProvider = $input->getOption('logs-provider');
         $filter = $input->getOption('filter');
-
-        // TODO: validate input;
 
         if ($parser !== null) {
             $this->logsParser->setParsingStrategy($parser);
@@ -64,9 +79,7 @@ class ResendLogsCommand extends Command
             $this->sender->useCheckpoints();
         }
 
-        $logs = ($filepath !== null)
-            ? $this->getLogsFromFile($filepath)
-            : $this->getLogsFromProvider($logsProvider, $filter);
+        $logs = $this->getLogs($logsProvider, $filter);
 
         $parsedLogs = $this->logsParser->parse($logs);
 
@@ -89,20 +102,8 @@ class ResendLogsCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function getLogsFromFile(string $filepath): iterable
+    private function getLogs(string $provider, string $filter): iterable
     {
-        $fileContents = $this->filesManager->getFileContents($filepath);
-
-        return yield from ($fileContents['events'] ?? $fileContents['data']);
-    }
-
-    private function getLogsFromProvider(string $provider, ?string $filter = null): iterable
-    {
-        // TODO solve empty filter problem - there should always be filter if filepath not provide aka logs should be fetch from provider
-        if ($filter === null) {
-            return yield from [];
-        }
-
         // TODO: create factory that selects and creates client, clients should implement interface
         if ($provider === 'dd') {
             return yield from $this->dataDogClient->getLogs(DataDogFilter::fromJsonString($filter));
@@ -110,6 +111,12 @@ class ResendLogsCommand extends Command
 
         if ($provider === 'cw') {
             return yield from $this->cloudWatchClient->getLogs(CloudWatchFilter::fromJsonString($filter));
+        }
+
+        if ($provider === 'file') {
+            $fileContents = $this->filesManager->getFileContents($filter);
+
+            return yield from ($fileContents['events'] ?? $fileContents['data']);
         }
 
         return yield from [];

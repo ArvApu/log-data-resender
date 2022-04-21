@@ -6,7 +6,7 @@ namespace App;
 
 class FilesManager
 {
-    private const DEFAULT_OUTPUT_DIRECTORY = 'output';
+    private const DEFAULT_OUTPUT_DIRECTORY = 'var/output';
 
     public function __construct(
         private string $projectDir,
