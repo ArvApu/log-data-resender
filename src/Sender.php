@@ -42,7 +42,15 @@ class Sender
 
             if ($parsedLog->getMasterUserId() === null) {
                 $results->increment('missing_master_user_id');
-                // TODO: Log this models id to to database(sql/nosql) or logging system
+
+                // TODO: do not log into memory, but into database or straight to file
+                $results->addError([
+                    'failed_at' => $index,
+                    'id' => $parsedLog->getModelId(),
+                    'master_user_id' => null,
+                    'session' => $this->getSessionId(),
+                ]);
+
                 continue;
             }
 

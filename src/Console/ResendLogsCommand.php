@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Client\CloudWatch\CloudWatchClient;
-use App\Client\CloudWatch\CloudWatchFilter;
-use App\Client\DataDog\DataDogClient;
-use App\Client\DataDog\DataDogFilter;
 use App\FilesManager;
 use App\LogsParser\LogsParser;
+use App\LogsProvider\LogsProvider;
 use App\Sender;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,11 +16,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ResendLogsCommand extends Command
 {
     public function __construct(
-        private FilesManager     $filesManager,
-        private Sender           $sender,
-        private LogsParser       $logsParser,
-        private DataDogClient    $dataDogClient,
-        private CloudWatchClient $cloudWatchClient,
+        private FilesManager $filesManager,
+        private Sender       $sender,
+        private LogsParser   $logsParser,
+        private LogsProvider $logsProvider
     ) {
         parent::__construct();
     }
@@ -37,49 +33,40 @@ class ResendLogsCommand extends Command
             name: 'checkpoints',
             shortcut: 'c',
             mode: InputOption::VALUE_REQUIRED,
-            description: 'Enable checkpoints between requests.',
+            description: 'Enable checkpoints between requests',
         );
 
         $this->addOption(
             name: 'parser',
             shortcut: 'p',
             mode: InputOption::VALUE_REQUIRED,
-            description: 'Type of parser that should be used to parse logs.',
+            description: 'The specific type of parser that will be used to parse logs (adds minimal optimisation)',
         );
 
         $this->addOption(
             name: 'filter',
             shortcut: 'f',
             mode: InputOption::VALUE_REQUIRED,
-            description: 'Filter to use for logs provider. If it is file logs provider this should filepath.',
+            description: 'Filter to use for logs provider (for source: "file", this is a filepath)',
         );
 
         $this->addOption(
-            name: 'logs-provider',
+            name: 'source',
             mode: InputOption::VALUE_OPTIONAL,
-            description: 'If file path is not set DataDog (dd) will be used as default.',
+            description: 'A source from where logs should be extracted.',
             // TODO: dd as const/enum value. Other possible values are: cw (cloudwatch), dd (data dog) and file
             default: 'dd',
         );
-
-        // TODO: validate input
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $parser = $input->getOption('parser');
-        $logsProvider = $input->getOption('logs-provider');
+        $this->prepare($input);
+
         $filter = $input->getOption('filter');
+        $source = $input->getOption('source');
 
-        if ($parser !== null) {
-            $this->logsParser->setParsingStrategy($parser);
-        }
-
-        if ($input->getOption('checkpoints') !== null) {
-            $this->sender->useCheckpoints();
-        }
-
-        $logs = $this->getLogs($logsProvider, $filter);
+        $logs = $this->logsProvider->getLogs($source, $filter);
 
         $parsedLogs = $this->logsParser->parse($logs);
 
@@ -87,6 +74,7 @@ class ResendLogsCommand extends Command
             $results = $this->sender->sendData($parsedLogs);
         } catch (\Exception $exception) {
             $output->writeln($exception->getMessage());
+
             return Command::FAILURE;
         }
 
@@ -102,23 +90,14 @@ class ResendLogsCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function getLogs(string $provider, string $filter): iterable
+    private function prepare(InputInterface $input): void
     {
-        // TODO: create factory that selects and creates client, clients should implement interface
-        if ($provider === 'dd') {
-            return yield from $this->dataDogClient->getLogs(DataDogFilter::fromJsonString($filter));
+        if ($input->getOption('parser') !== null) {
+            $this->logsParser->setParsingStrategy($input->getOption('parser'));
         }
 
-        if ($provider === 'cw') {
-            return yield from $this->cloudWatchClient->getLogs(CloudWatchFilter::fromJsonString($filter));
+        if ($input->getOption('checkpoints') !== null) {
+            $this->sender->useCheckpoints();
         }
-
-        if ($provider === 'file') {
-            $fileContents = $this->filesManager->getFileContents($filter);
-
-            return yield from ($fileContents['events'] ?? $fileContents['data']);
-        }
-
-        return yield from [];
     }
 }
