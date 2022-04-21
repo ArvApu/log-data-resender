@@ -24,12 +24,12 @@ class ResendLogsCommand extends Command
         private LogsParser       $logsParser,
         private DataDogClient    $dataDogClient,
         private CloudWatchClient $cloudWatchClient,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
     protected static $defaultName = 'app:resend-logs';
+    protected static $defaultDescription = 'Command resends requests from failed logs';
 
     protected function configure(): void
     {

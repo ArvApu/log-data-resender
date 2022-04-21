@@ -45,6 +45,15 @@ services:
     arguments:
       $args: '%app.client.cloudwatch.arguments%'
 
+  App\LogsParser\LogsParser:
+    arguments:
+      $parsers:
+        !php/const App\LogsParser\LogsParser::DD_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\DataDogLogTypeParser'
+        !php/const App\LogsParser\LogsParser::CW_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\CloudWatchLogTypeParser'
+        !php/const App\LogsParser\LogsParser::BO_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\BackofficeLogTypeParser'
+        !php/const App\LogsParser\LogsParser::POS_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\PosLogTypeParser'
+
+
   # TODO: REDO ALL GUZZLE USAGES TO: https://symfony.com/doc/current/http_client.html
   GuzzleHttp\Client:
     shared: false

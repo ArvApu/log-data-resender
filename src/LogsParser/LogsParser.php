@@ -12,10 +12,11 @@ use App\LogsParser\LogTypeParser\PosLogTypeParser;
 
 class LogsParser
 {
+    // TODO: move to enum
     public const DD_LOG_TYPE_PARSER = 'dd';
-    public const BO_LOG_TYPE_PARSER  = 'bo';
-    public const POS_LOG_TYPE_PARSER  = 'pos';
-    public const CLOUDWATCH_LOG_TYPE_PARSER  = 'cw';
+    public const BO_LOG_TYPE_PARSER = 'bo';
+    public const POS_LOG_TYPE_PARSER = 'pos';
+    public const CW_LOG_TYPE_PARSER = 'cw';
 
     /**
      * @var LogTypeParserInterface[]
@@ -27,14 +28,19 @@ class LogsParser
      */
     private ?LogTypeParserInterface $parser = null;
 
-    public function __construct()
+    public function __construct(array $parsers)
     {
-        $this->parsers = [
-            self::DD_LOG_TYPE_PARSER => new DataDogLogTypeParser(),
-            self::CLOUDWATCH_LOG_TYPE_PARSER => new CloudWatchLogTypeParser(),
-            self::BO_LOG_TYPE_PARSER => new BackofficeLogTypeParser(),
-            self::POS_LOG_TYPE_PARSER => new PosLogTypeParser(),
-        ];
+        $this->parsers = [];
+
+        foreach ($parsers as $parser) {
+            if (!$parser instanceof LogTypeParserInterface) {
+                throw new \LogicException(
+                    'Log parser can only have parsers, that implements ' . LogTypeParserInterface::class
+                );
+            }
+        }
+
+        $this->parsers = $parsers;
     }
 
     /**
