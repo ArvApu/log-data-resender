@@ -13,9 +13,9 @@ use App\FilesManager;
 class LogsProvider
 {
     public function __construct(
-        private DataDogClient    $dataDogClient,
+        private DataDogClient $dataDogClient,
         private CloudWatchClient $cloudWatchClient,
-        private FilesManager     $filesManager,
+        private FilesManager $filesManager,
     ) {
     }
 

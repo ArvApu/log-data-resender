@@ -17,8 +17,8 @@ class ResendLogsCommand extends Command
 {
     public function __construct(
         private FilesManager $filesManager,
-        private Sender       $sender,
-        private LogsParser   $logsParser,
+        private Sender $sender,
+        private LogsParser $logsParser,
         private LogsProvider $logsProvider
     ) {
         parent::__construct();
