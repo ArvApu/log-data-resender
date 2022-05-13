@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Client\DataDog;
 
 use App\Client\DataDog\DataDogFilter;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class DataDogFilterTest extends TestCase
+class DataDogFilterUnitTest extends UnitTestCase
 {
     public function testCanBeCreatedFromJsonString(): void
     {

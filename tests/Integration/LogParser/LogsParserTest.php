@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Integration\LogParser;
 
 use App\LogsParser\LogsParser;
 use App\LogsParser\ParsedLog;
-use Tests\TestCase;
+use Tests\IntegrationTestCase;
 
 /**
  * @coversDefaultClass \App\LogsParser\LogsParser
  */
-class LogsParserTest extends TestCase
+class LogsParserTest extends IntegrationTestCase
 {
     private LogsParser $parser;
 
     public function setUp(): void
     {
-        $this->parser = new LogsParser();
+        $this->parser = static::getContainer()->get(LogsParser::class);
     }
 
     /**
@@ -49,7 +49,7 @@ class LogsParserTest extends TestCase
     {
         $data = [
             'Is able to parse backoffice logs' => [
-                'logs' => json_decode(file_get_contents($this->getUnitFixturesDir('bo-logs-mock.json')), true),
+                'logs' => json_decode(file_get_contents($this->getFixtures('bo-logs-mock.json')), true),
                 'expected' => [
                     new ParsedLog(
                         json_encode([
@@ -192,7 +192,7 @@ class LogsParserTest extends TestCase
                 'parseType' => LogsParser::BO_LOG_TYPE_PARSER,
             ],
             'Is able to parse pos logs' => [
-                'logs' => json_decode(file_get_contents($this->getUnitFixturesDir('pos-logs-mock.json')), true),
+                'logs' => json_decode(file_get_contents($this->getFixtures('pos-logs-mock.json')), true),
                 'expected' => [
                     new ParsedLog(
                         json_encode([
@@ -452,7 +452,7 @@ class LogsParserTest extends TestCase
                 'parseType' => LogsParser::POS_LOG_TYPE_PARSER,
             ],
             'Is able to parse data dog logs' => [
-                'logs' => json_decode(file_get_contents($this->getUnitFixturesDir('dd-logs-mock.json')), true),
+                'logs' => json_decode(file_get_contents($this->getFixtures('dd-logs-mock.json')), true),
                 'expected' => [
                     new ParsedLog(
                         json_encode([

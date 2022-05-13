@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\ResultsAccumulator;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ResultsAccumulatorTest extends TestCase
+class ResultsAccumulatorUnitTest extends UnitTestCase
 {
     public function testIncrement(): ResultsAccumulator
     {

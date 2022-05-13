@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\LogsParser\LogTypeParser;
 
-use App\LogsParser\ParsedLog;
 use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
-use Tests\TestCase;
+use App\LogsParser\ParsedLog;
+use Tests\UnitTestCase;
 
-class BackofficeLogTypeParserTest extends TestCase
+class BackofficeLogTypeParserUnitTest extends UnitTestCase
 {
     public function testParse(): void
     {
         $parser = new BackofficeLogTypeParser();
 
-        $data = file_get_contents($this->getUnitFixturesDir('bo-logs-mock.json'));
+        $data = file_get_contents($this->getFixtures('bo-logs-mock.json'));
 
         if ($data === false) {
             $this->fail('Missing data fixture.');
