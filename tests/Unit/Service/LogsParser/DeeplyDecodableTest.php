@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\LogsParser;
+namespace Tests\Unit\Service\LogsParser;
 
-use App\LogsParser\DeeplyDecodable;
+use App\Service\LogsParser\DeeplyDecodable;
 use Tests\UnitTestCase;
 
-class DeeplyDecodableUnitTest extends UnitTestCase
+class DeeplyDecodableTest extends UnitTestCase
 {
     public function testDecodeParametersFromObject(): void
     {

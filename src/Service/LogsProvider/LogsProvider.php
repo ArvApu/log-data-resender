@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\LogsProvider;
+namespace App\Service\LogsProvider;
 
 use App\Client\CloudWatch\CloudWatchClient;
 use App\Client\CloudWatch\CloudWatchFilter;
 use App\Client\DataDog\DataDogClient;
 use App\Client\DataDog\DataDogFilter;
-use App\FilesManager;
+use App\Service\FilesManager;
 
 class LogsProvider
 {

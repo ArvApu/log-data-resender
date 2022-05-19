@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\LogsParser\LogTypeParser;
+namespace Tests\Unit\Service\LogsParser\LogTypeParser;
 
-use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
-use App\LogsParser\ParsedLog;
+use App\Service\LogsParser\LogTypeParser\BackofficeLogTypeParser;
+use App\Service\LogsParser\ParsedLog;
 use Tests\UnitTestCase;
 
-class BackofficeLogTypeParserUnitTest extends UnitTestCase
+class BackofficeLogTypeParserTest extends UnitTestCase
 {
     public function testParse(): void
     {

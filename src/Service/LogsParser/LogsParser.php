@@ -2,13 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\LogsParser;
+namespace App\Service\LogsParser;
 
-use App\LogsParser\LogTypeParser\BackofficeLogTypeParser;
-use App\LogsParser\LogTypeParser\CloudWatchLogTypeParser;
-use App\LogsParser\LogTypeParser\DataDogLogTypeParser;
-use App\LogsParser\LogTypeParser\LogTypeParserInterface;
-use App\LogsParser\LogTypeParser\PosLogTypeParser;
+use App\Service\LogsParser\LogTypeParser\LogTypeParserInterface;
 
 class LogsParser
 {
