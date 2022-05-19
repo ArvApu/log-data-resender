@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Service\Service;
 
-use App\ResultsAccumulator;
+use App\Service\Sender\ResultsAccumulator;
 use Tests\UnitTestCase;
 
-class ResultsAccumulatorUnitTest extends UnitTestCase
+class ResultsAccumulatorTest extends UnitTestCase
 {
     public function testIncrement(): ResultsAccumulator
     {

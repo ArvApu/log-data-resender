@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\LogsParser;
+namespace Tests\Unit\Service\LogsParser;
 
-use App\LogsParser\ParsedLog;
+use App\Service\LogsParser\ParsedLog;
 use Tests\UnitTestCase;
 
-class ParsedLogUnitTest extends UnitTestCase
+class ParsedLogTest extends UnitTestCase
 {
     private ParsedLog $fakeParsedLog;
 

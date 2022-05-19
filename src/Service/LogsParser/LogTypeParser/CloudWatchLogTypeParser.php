@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\LogsParser\LogTypeParser;
+namespace App\Service\LogsParser\LogTypeParser;
 
-use App\LogsParser\ParsedLog;
+use App\Service\LogsParser\ParsedLog;
 
 class CloudWatchLogTypeParser implements LogTypeParserInterface
 {

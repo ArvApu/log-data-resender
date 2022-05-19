@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\LogsParser;
+namespace App\Service\LogsParser;
 
 use JetBrains\PhpStorm\ArrayShape;
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Service\Sender;
 
-use App\LogsParser\ParsedLog;
+use App\Service\LogsParser\ParsedLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 

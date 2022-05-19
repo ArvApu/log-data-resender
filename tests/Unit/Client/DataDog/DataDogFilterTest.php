@@ -7,7 +7,7 @@ namespace Tests\Unit\Client\DataDog;
 use App\Client\DataDog\DataDogFilter;
 use Tests\UnitTestCase;
 
-class DataDogFilterUnitTest extends UnitTestCase
+class DataDogFilterTest extends UnitTestCase
 {
     public function testCanBeCreatedFromJsonString(): void
     {

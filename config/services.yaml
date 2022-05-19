@@ -32,7 +32,7 @@ services:
       $apiKey: '%env(string:DD_API_KEY)%'
       $appKey: '%env(string:DD_APP_KEY)%'
 
-  App\Sender:
+  App\Service\Sender\Sender:
     arguments:
       $apiKey: '%env(string:MASTER_KEY)%'
 
@@ -45,14 +45,13 @@ services:
     arguments:
       $args: '%app.client.cloudwatch.arguments%'
 
-  App\LogsParser\LogsParser:
+  App\Service\LogsParser\LogsParser:
     arguments:
       $parsers:
-        !php/const App\LogsParser\LogsParser::DD_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\DataDogLogTypeParser'
-        !php/const App\LogsParser\LogsParser::CW_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\CloudWatchLogTypeParser'
-        !php/const App\LogsParser\LogsParser::BO_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\BackofficeLogTypeParser'
-        !php/const App\LogsParser\LogsParser::POS_LOG_TYPE_PARSER: '@App\LogsParser\LogTypeParser\PosLogTypeParser'
-
+        !php/const App\Service\LogsParser\LogsParser::DD_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\DataDogLogTypeParser'
+        !php/const App\Service\LogsParser\LogsParser::CW_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\CloudWatchLogTypeParser'
+        !php/const App\Service\LogsParser\LogsParser::BO_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\BackofficeLogTypeParser'
+        !php/const App\Service\LogsParser\LogsParser::POS_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\PosLogTypeParser'
 
   # TODO: REDO ALL GUZZLE USAGES TO: https://symfony.com/doc/current/http_client.html
   GuzzleHttp\Client:

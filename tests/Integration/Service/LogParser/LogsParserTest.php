@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\LogParser;
+namespace Tests\Integration\Service\LogParser;
 
-use App\LogsParser\LogsParser;
-use App\LogsParser\ParsedLog;
+use App\Service\LogsParser\LogsParser;
+use App\Service\LogsParser\ParsedLog;
 use Tests\IntegrationTestCase;
 
 /**
- * @coversDefaultClass \App\LogsParser\LogsParser
+ * @coversDefaultClass \App\Service\LogsParser\LogsParser
  */
 class LogsParserTest extends IntegrationTestCase
 {
