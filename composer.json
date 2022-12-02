@@ -1,4 +1,6 @@
 {
+    "name": "arvapu/log-parser",
+    "description": "Some description will be useful too!",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
@@ -76,9 +78,11 @@
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --color=always --coverage-clover=\"var/analysis/coverage.xml\" --log-junit=\"var/analysis/tests.xml\""
         ],
+        "analysis:prepare": "mkdir -p var/analysis",
         "analysis:phpcs": "phpcs -p || exit 0",
         "analysis:phpstan": "phpstan analyse --error-format=json > var/analysis/phpstan.json || exit 0",
         "analysis:full": [
+            "@analysis:prepare",
             "@analysis:phpcs",
             "@analysis:phpstan",
             "@test:coverage"
