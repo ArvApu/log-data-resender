@@ -57,6 +57,6 @@ jobs:
               run: echo $GITHUB_HEAD_REF; echo $GITHUB_BASE_REF; echo $GITHUB_PR_NUMBER
 
             - name: SonarCloud Scan
-              uses: sonarsource/sonarqube-scan-action@master
+              run: '.github/scripts/run-analyzer.sh'
 
 
