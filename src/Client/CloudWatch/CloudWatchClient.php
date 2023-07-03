@@ -4,18 +4,25 @@ declare(strict_types=1);
 
 namespace App\Client\CloudWatch;
 
+use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 
-class CloudWatchClient
+class CloudWatchClient implements LogsProviderSourceInterface
 {
     public function __construct(private CloudWatchLogsClient $client)
     {
     }
 
-    public function getLogs(CloudWatchFilter $cloudWatchFilter): iterable
+    public static function getId(): string
     {
-        // TODO: change it to -> to array method??
-        $logArguments = $cloudWatchFilter->jsonSerialize();
+        return 'cloudwatch';
+    }
+
+    public function getLogs(string $filter): iterable
+    {
+        $filter = CloudWatchFilter::fromJsonString($filter);
+
+        $logArguments = $filter->jsonSerialize();
 
         // AWS might return empty events list, but with "next token", which indicates that they are still loading data
         do {

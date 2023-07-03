@@ -6,8 +6,8 @@ namespace App\Console;
 
 use App\Service\FilesManager;
 use App\Service\LogsParser\LogsParser;
-use App\Service\LogsParser\LogTypeParser\DataDogLogTypeParser;
 use App\Service\LogsProvider\LogsProvider;
+use App\Service\LogsProvider\Source\FileSource;
 use App\Service\Sender\Sender;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,7 +55,7 @@ class ResendLogsCommand extends Command
             name: 'source',
             mode: InputOption::VALUE_OPTIONAL,
             description: 'A source from where logs should be extracted.',
-            default: DataDogLogTypeParser::getId(),
+            default: FileSource::getId(),
         );
     }
 

@@ -5,22 +5,30 @@ declare(strict_types=1);
 namespace App\Client\DataDog;
 
 use App\Constant\Value\DataDogEndpoint;
+use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 
-class DataDogClient
+class DataDogClient implements LogsProviderSourceInterface
 {
     public function __construct(
         private Client $client,
-        private string $host,
-        private string $appKey,
-        private string $apiKey,
+        private readonly string $host,
+        private readonly string $appKey,
+        private readonly string $apiKey,
     ) {
     }
 
-    public function getLogs(DataDogFilter $filter): iterable
+    public static function getId(): string
     {
+        return 'datadog';
+    }
+
+    public function getLogs(string $filter): iterable
+    {
+        $filter = DataDogFilter::fromJsonString($filter);
+
         $data = [
             'filter' => $filter,
             'page' => [

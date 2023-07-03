@@ -4,35 +4,26 @@ declare(strict_types=1);
 
 namespace App\Service\LogsProvider;
 
-use App\Client\CloudWatch\CloudWatchClient;
-use App\Client\CloudWatch\CloudWatchFilter;
-use App\Client\DataDog\DataDogClient;
-use App\Client\DataDog\DataDogFilter;
-use App\Service\FilesManager;
+use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 
 class LogsProvider
 {
     public function __construct(
-        private DataDogClient $dataDogClient,
-        private CloudWatchClient $cloudWatchClient,
-        private FilesManager $filesManager,
+        /** @var LogsProviderSourceInterface[] $sources */
+        private readonly iterable $sources
     ) {
     }
 
     public function getLogs(string $source, string $filter): iterable
     {
-        return yield from match ($source) {
-            'dd' => $this->dataDogClient->getLogs(DataDogFilter::fromJsonString($filter)),
-            'cw' => $this->cloudWatchClient->getLogs(CloudWatchFilter::fromJsonString($filter)),
-            'file' => $this->getLogsFromFile($filter),
-            default => [],
-        };
-    }
+        foreach ($this->sources as $availableSource) {
+            if ($availableSource::getId() !== $source) {
+                continue;
+            }
 
-    private function getLogsFromFile(string $filepath): array
-    {
-        $fileContents = $this->filesManager->getFileContents($filepath);
+            return $availableSource->getLogs($filter);
+        }
 
-        return $fileContents['events'] ?? $fileContents['data'];
+        return [];
     }
 }
