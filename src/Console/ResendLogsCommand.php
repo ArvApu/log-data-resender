@@ -6,6 +6,7 @@ namespace App\Console;
 
 use App\Service\FilesManager;
 use App\Service\LogsParser\LogsParser;
+use App\Service\LogsParser\LogTypeParser\DataDogLogTypeParser;
 use App\Service\LogsProvider\LogsProvider;
 use App\Service\Sender\Sender;
 use Symfony\Component\Console\Command\Command;
@@ -54,8 +55,7 @@ class ResendLogsCommand extends Command
             name: 'source',
             mode: InputOption::VALUE_OPTIONAL,
             description: 'A source from where logs should be extracted.',
-            // TODO: dd as const/enum value. Other possible values are: cw (cloudwatch), dd (data dog) and file
-            default: 'dd',
+            default: DataDogLogTypeParser::getId(),
         );
     }
 

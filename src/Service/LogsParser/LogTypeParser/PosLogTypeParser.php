@@ -8,6 +8,11 @@ use App\Service\LogsParser\ParsedLog;
 
 class PosLogTypeParser implements LogTypeParserInterface
 {
+    public static function getId(): string
+    {
+        return 'pos';
+    }
+
     public function parse(array $event): ?ParsedLog
     {
         $info = $this->getInformation($event);

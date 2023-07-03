@@ -8,6 +8,11 @@ use App\Service\LogsParser\ParsedLog;
 
 class DataDogLogTypeParser implements LogTypeParserInterface
 {
+    public static function getId(): string
+    {
+        return 'dd';
+    }
+
     public function parse(array $event): ?ParsedLog
     {
         $request = $event['attributes']['attributes']['request'] ?? null;

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Integration\Service\LogParser;
 
 use App\Service\LogsParser\LogsParser;
+use App\Service\LogsParser\LogTypeParser\BackofficeLogTypeParser;
+use App\Service\LogsParser\LogTypeParser\DataDogLogTypeParser;
+use App\Service\LogsParser\LogTypeParser\PosLogTypeParser;
 use App\Service\LogsParser\ParsedLog;
 use Tests\IntegrationTestCase;
 
@@ -189,7 +192,7 @@ class LogsParserTest extends IntegrationTestCase
                         'test-d7e7-d593-70f3-694794e80f05',
                     ),
                 ],
-                'parseType' => LogsParser::BO_LOG_TYPE_PARSER,
+                'parseType' => BackofficeLogTypeParser::getId(),
             ],
             'Is able to parse pos logs' => [
                 'logs' => json_decode(file_get_contents($this->getFixtures('pos-logs-mock.json')), true),
@@ -449,7 +452,7 @@ class LogsParserTest extends IntegrationTestCase
                         'e60a9592-204a-4a85-f8f3-d20881864f78'
                     ),
                 ],
-                'parseType' => LogsParser::POS_LOG_TYPE_PARSER,
+                'parseType' => PosLogTypeParser::getId(),
             ],
             'Is able to parse data dog logs' => [
                 'logs' => json_decode(file_get_contents($this->getFixtures('dd-logs-mock.json')), true),
@@ -592,7 +595,7 @@ class LogsParserTest extends IntegrationTestCase
                         'test-d7e7-d593-70f3-694794e80f05',
                     ),
                 ],
-                'parseType' => LogsParser::DD_LOG_TYPE_PARSER,
+                'parseType' => DataDogLogTypeParser::getId(),
             ],
         ];
 

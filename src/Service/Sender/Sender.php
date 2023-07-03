@@ -34,8 +34,6 @@ class Sender
 
             $this->progress($results->getCount('completed'));
 
-            // TODO: Log this parsed log with session id to database(sql/nosql) or logging system
-
             // Protects from accidentally changing data with update methods (PATCH/PUT).
             if ($parsedLog->getMethod() !== 'POST') {
                 $results->increment('not_a_post_request');

@@ -8,25 +8,19 @@ use App\Service\LogsParser\LogTypeParser\LogTypeParserInterface;
 
 class LogsParser
 {
-    // TODO: move to enum
-    public const DD_LOG_TYPE_PARSER = 'dd';
-    public const BO_LOG_TYPE_PARSER = 'bo';
-    public const POS_LOG_TYPE_PARSER = 'pos';
-    public const CW_LOG_TYPE_PARSER = 'cw';
-
     /**
      * @var LogTypeParserInterface[]
      */
-    private array $parsers;
+    private readonly array $parsers;
 
     /**
      * If this parser is set, then all others will be ignored and only this will be used for logs parsing.
      */
     private ?LogTypeParserInterface $parser = null;
 
-    public function __construct(array $parsers)
+    public function __construct(iterable $parsers)
     {
-        $this->parsers = [];
+        $indexedParsesList = [];
 
         foreach ($parsers as $parser) {
             if (!$parser instanceof LogTypeParserInterface) {
@@ -34,9 +28,11 @@ class LogsParser
                     'Log parser can only have parsers, that implements ' . LogTypeParserInterface::class
                 );
             }
+
+            $indexedParsesList[$parser::getId()] = $parser;
         }
 
-        $this->parsers = $parsers;
+        $this->parsers = $indexedParsesList;
     }
 
     /**

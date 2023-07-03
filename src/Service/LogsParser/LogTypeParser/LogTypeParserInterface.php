@@ -8,5 +8,7 @@ use App\Service\LogsParser\ParsedLog;
 
 interface LogTypeParserInterface
 {
+    public static function getId(): string;
+
     public function parse(array $event): ?ParsedLog;
 }

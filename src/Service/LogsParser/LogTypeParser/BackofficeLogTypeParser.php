@@ -8,6 +8,11 @@ use App\Service\LogsParser\ParsedLog;
 
 class BackofficeLogTypeParser implements LogTypeParserInterface
 {
+    public static function getId(): string
+    {
+        return 'bo';
+    }
+
     public function parse(array $event): ?ParsedLog
     {
         $params = $event['event']['json']['info']['api']['params'] ?? null;

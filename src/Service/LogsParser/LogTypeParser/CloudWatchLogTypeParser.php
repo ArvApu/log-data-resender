@@ -8,6 +8,11 @@ use App\Service\LogsParser\ParsedLog;
 
 class CloudWatchLogTypeParser implements LogTypeParserInterface
 {
+    public static function getId(): string
+    {
+        return 'cw';
+    }
+
     public function parse(array $event): ?ParsedLog
     {
         $request = $event['request'] ?? null;

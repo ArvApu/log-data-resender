@@ -13,6 +13,10 @@ services:
     bind:
       string $projectDir: '%kernel.project_dir%'
 
+  _instanceof:
+    App\Service\LogsParser\LogTypeParser\LogTypeParserInterface:
+      tags: ['app.log_parser.typed_log_parsers']
+
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
@@ -47,11 +51,7 @@ services:
 
   App\Service\LogsParser\LogsParser:
     arguments:
-      $parsers:
-        !php/const App\Service\LogsParser\LogsParser::DD_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\DataDogLogTypeParser'
-        !php/const App\Service\LogsParser\LogsParser::CW_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\CloudWatchLogTypeParser'
-        !php/const App\Service\LogsParser\LogsParser::BO_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\BackofficeLogTypeParser'
-        !php/const App\Service\LogsParser\LogsParser::POS_LOG_TYPE_PARSER: '@App\Service\LogsParser\LogTypeParser\PosLogTypeParser'
+      $parsers: !tagged_iterator 'app.log_parser.typed_log_parsers'
 
   # TODO: REDO ALL GUZZLE USAGES TO: https://symfony.com/doc/current/http_client.html
   GuzzleHttp\Client:
