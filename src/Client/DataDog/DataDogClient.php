@@ -25,17 +25,23 @@ class DataDogClient implements LogsProviderSourceInterface
         return 'datadog';
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getLogs(string $filter): iterable
     {
-        $filter = DataDogFilter::fromJsonString($filter);
+        $data = json_decode($filter, true);
 
-        $data = [
-            'filter' => $filter,
-            'page' => [
-                'cursor' => null,
-                // Max limit is 5000, but we use smaller chunks to preserve memory
-                'limit' => 100,
-            ],
+        if ($data === null) {
+            throw new \Exception('Invalid json string provided for data dog filter');
+        }
+
+        $data['filter'] ??= $data;
+
+        $data['page'] = [
+            'cursor' => null,
+            // Max limit is 5000, but we use smaller chunks to preserve memory
+            'limit' => 100,
         ];
 
         do {
