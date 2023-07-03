@@ -96,7 +96,6 @@ class ResendLogsCommand extends Command
             }
 
             $this->filesManager->putContentsToFile("_counts-{$key}.json", json_encode($results->getCounts()));
-            $this->filesManager->putContentsToFile("_errors-{$key}.json", json_encode($results->getErrors()));
         }
 
         return Command::SUCCESS;
