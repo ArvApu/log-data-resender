@@ -7,7 +7,6 @@ namespace App\Service\Sender;
 class ResultsAccumulator
 {
     private array $counts = [];
-    private array $errors = [];
 
     public function getCount(string $id): int
     {
@@ -19,11 +18,6 @@ class ResultsAccumulator
         return $this->counts;
     }
 
-    public function getErrors(): array
-    {
-        return $this->errors;
-    }
-
     public function increment(string $id, int $incrementor = 1): void
     {
         if (!isset($this->counts[$id])) {
@@ -31,10 +25,5 @@ class ResultsAccumulator
         }
 
         $this->counts[$id] += $incrementor;
-    }
-
-    public function addError(array $error): void
-    {
-        $this->errors[] = $error;
     }
 }

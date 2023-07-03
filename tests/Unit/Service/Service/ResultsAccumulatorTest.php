@@ -35,13 +35,4 @@ class ResultsAccumulatorTest extends UnitTestCase
         $this->assertArrayHasKey('new_fake_count_1', $accumulator->getCounts());
         $this->assertArrayHasKey('new_fake_count_2', $accumulator->getCounts());
     }
-
-    public function testAddError(): void
-    {
-        $accumulator = new ResultsAccumulator();
-
-        $accumulator->addError(['error' => 'message']);
-
-        $this->assertEquals([['error' => 'message']], $accumulator->getErrors());
-    }
 }

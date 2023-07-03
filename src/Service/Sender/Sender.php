@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Sender;
 
+use App\Log\SenderLogger;
 use App\Service\LogsParser\ParsedLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -16,6 +17,7 @@ class Sender
     public function __construct(
         private Client $client,
         private string $apiKey,
+        private SenderLogger $logger,
     ) {
     }
 
@@ -37,25 +39,29 @@ class Sender
             // Protects from accidentally changing data with update methods (PATCH/PUT).
             if ($parsedLog->getMethod() !== 'POST') {
                 $results->increment('not_a_post_request');
+
                 continue;
             }
 
             if ($parsedLog->getMasterUserId() === null) {
                 $results->increment('missing_master_user_id');
 
-                // TODO: do not log into memory, but into database or straight to file
-                $results->addError([
-                    'failed_at' => $index,
-                    'id' => $parsedLog->getModelId(),
-                    'master_user_id' => null,
-                    'session' => $this->getSessionId(),
-                ]);
+                $this->logger->warning(
+                    'Missing master user id',
+                    [
+                        'failed_at' => $index,
+                        'model_id' => $parsedLog->getModelId(),
+                        'master_user_id' => null,
+                        'session' => $this->getSessionId(),
+                    ],
+                );
 
                 continue;
             }
 
             if (!$this->checkpoint($parsedLog)) {
                 $results->increment('skipped');
+
                 continue;
             }
 
@@ -75,25 +81,30 @@ class Sender
 
                 if (isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken')) {
                     $results->increment('failed_already_existed');
+
                     continue;
                 }
 
-                // TODO: do not log into memory, but into database or straight to file
-                $results->addError([
-                    'failed_at' => $index,
-                    'id' => $parsedLog->getModelId(),
-                    'master_user_id' => $parsedLog->getMasterUserId(),
-                    'session' => $this->getSessionId(),
-                    'guzzle_response_data' => [
-                        'error'      => $content->error ?? '',
-                        'errors'     => $content->errors ?? '',
-                        'error_code' => $content->errorCode ?? '',
+                $this->logger->error(
+                    $content->error ?? 'Failed to send request',
+                    [
+                        'failed_at' => $index,
+                        'model_id' => $parsedLog->getModelId(),
+                        'master_user_id' => $parsedLog->getMasterUserId(),
+                        'session' => $this->getSessionId(),
+                        'response_data' => [
+                            'error'      => $content->error ?? '',
+                            'errors'     => $content->errors ?? '',
+                            'error_code' => $content->errorCode ?? '',
+                        ],
                     ],
-                ]);
+                );
             }
         }
 
         echo PHP_EOL;
+
+        unset($this->sessionId);
 
         return $results;
     }
