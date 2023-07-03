@@ -66,26 +66,38 @@ class ResendLogsCommand extends Command
         $filter = $input->getOption('filter');
         $source = $input->getOption('source');
 
-        $logs = $this->logsProvider->getLogs($source, $filter);
+        $filters = is_dir($filter)
+            ? array_map(
+                fn (string $subFilter): string => "{$filter}/$subFilter",
+                array_diff(scandir($filter), ['.', '..'])
+            )
+            : [$filter];
 
-        $parsedLogs = $this->logsParser->parse($logs);
+        sort($filters,  SORT_NATURAL);
 
-        try {
-            $results = $this->sender->sendData($parsedLogs);
-        } catch (\Exception $exception) {
-            $output->writeln($exception->getMessage());
+        foreach ($filters as $key => $filter) {
+            $logs = $this->logsProvider->getLogs($source, $filter);
 
-            return Command::FAILURE;
+            $parsedLogs = $this->logsParser->parse($logs);
+
+            try {
+                $results = $this->sender->sendData($parsedLogs);
+            } catch (\Exception $exception) {
+                $output->writeln($exception->getMessage());
+
+                return Command::FAILURE;
+            }
+
+            // Cleanup to save memory
+            unset($parsedLogs);
+
+            foreach ($results->getCounts() as $id => $count) {
+                $output->writeln("<info>{$id}: {$count}</info>");
+            }
+
+            $this->filesManager->putContentsToFile("_counts-{$key}.json", json_encode($results->getCounts()));
+            $this->filesManager->putContentsToFile("_errors-{$key}.json", json_encode($results->getErrors()));
         }
-
-        // Cleanup to save memory
-        unset($parsedLogs);
-
-        foreach ($results->getCounts() as $id => $count) {
-            $output->writeln("<info>{$id}: {$count}</info>");
-        }
-
-        $this->filesManager->putContentsToFile('_errors.json', json_encode($results->getErrors()));
 
         return Command::SUCCESS;
     }
