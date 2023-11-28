@@ -9,11 +9,11 @@ use JetBrains\PhpStorm\ArrayShape;
 class ParsedLog implements \JsonSerializable
 {
     public function __construct(
-        private string $body,
-        private string $method,
-        private string $url,
-        private string $modelId,
-        private ?string $masterUserId = null,
+        private readonly string $body,
+        private readonly string $method,
+        private readonly string $url,
+        private readonly string $modelId,
+        private readonly ?string $masterUserId = null,
     ) {
     }
 

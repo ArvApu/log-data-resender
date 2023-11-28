@@ -73,7 +73,7 @@ class ResendLogsCommand extends Command
             )
             : [$filter];
 
-        sort($filters,  SORT_NATURAL);
+        sort($filters, SORT_NATURAL);
 
         foreach ($filters as $key => $filter) {
             $logs = $this->logsProvider->getLogs($source, $filter);
