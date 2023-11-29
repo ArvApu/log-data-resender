@@ -32,7 +32,7 @@ class SenderLogger implements LoggerInterface
         $senderLog->setSession($context['session']);
         $senderLog->setMasterUserId($context['master_user_id']);
         $senderLog->setModelId($context['model_id']);
-        $senderLog->setResponseData($context['response_data']);
+        $senderLog->setResponseData($context['response_data'] ?? []);
 
         $this->senderLogRepository->save($senderLog, true);
     }

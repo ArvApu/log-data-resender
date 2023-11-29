@@ -9,11 +9,13 @@ use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class DataDogClient implements LogsProviderSourceInterface
 {
     public function __construct(
-        private Client $client,
+        private readonly Client $client,
         private readonly string $host,
         private readonly string $appKey,
         private readonly string $apiKey,
@@ -45,9 +47,10 @@ class DataDogClient implements LogsProviderSourceInterface
         ];
 
         do {
-            $startTime = microtime(true);
+            $response = $this->request(DataDogEndpoint::LOG_SEARCH, Request::METHOD_POST, $data);
 
-            $response = $this->request(DataDogEndpoint::LOG_SEARCH, 'POST', $data);
+            $headers = $response->getHeaders();
+            $response = json_decode($response->getBody()->getContents(), true);
 
             if ($response === null) {
                 break;
@@ -59,32 +62,26 @@ class DataDogClient implements LogsProviderSourceInterface
 
             $data['page']['cursor'] = $response['meta']['page']['after'] ?? null;
 
-            $endTime = microtime(true);
-
-            $executionTime = (int) round($endTime - $startTime);
-
-            // Needed for rate limit
-            $minimumExecutionTime = 3;
-
-            if ($executionTime < $minimumExecutionTime && $data['page']['cursor'] !== null) {
-                sleep($minimumExecutionTime - $executionTime);
+            if (((int) $headers['x-ratelimit-remaining'][0]) > 0 || $data['page']['cursor'] === null) {
+                continue;
             }
+
+            // Adding one second buffer to avoid rare occurrences of rate limit not being reset yet
+            sleep(((int) $headers['x-ratelimit-reset'][0]) + 1);
         } while ($data['page']['cursor'] !== null);
     }
 
-    protected function request(string $endpoint, string $method, array $data = []): ?array
+    protected function request(string $endpoint, string $method, array $data = []): ResponseInterface
     {
         try {
-            $response = $this->client->request($method, $this->getUrl($endpoint), $this->getOptions($method, $data));
-        } catch (RequestException) {
-            // TODO log this exception to logger
-            return null;
+            return $this->client->request($method, $this->getUrl($endpoint), $this->getOptions($method, $data));
+        } catch (RequestException $e) {
+            // TODO: log this exception to logger and then return null or stop whole process?
+            die($e->getMessage());
         } catch (GuzzleException $e) {
             // This is critical exception so we must stop
             die($e->getMessage());
         }
-
-        return json_decode($response->getBody()->getContents(), true);
     }
 
     private function getUrl(string $endpoint): string
@@ -100,12 +97,13 @@ class DataDogClient implements LogsProviderSourceInterface
             return $options;
         }
 
-        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+        $options['headers'] = [
+            'DD-API-KEY' => $this->apiKey,
+            'DD-APPLICATION-KEY' => $this->appKey,
+        ];
+
+        if (in_array($method, [Request::METHOD_POST, Request::METHOD_PUT, Request::METHOD_PATCH])) {
             $options['json'] = $data;
-            $options['headers'] = [
-                'DD-API-KEY' => $this->apiKey,
-                'DD-APPLICATION-KEY' => $this->appKey,
-            ];
         } else {
             $options['query'] = $data;
         }
