@@ -6,6 +6,9 @@ namespace App\Service\LogsParser\LogTypeParser;
 
 use App\Service\LogsParser\ParsedLog;
 
+/**
+ * @deprecated use DataDogPosLogType parser
+ */
 class PosLogTypeParser implements LogTypeParserInterface
 {
     public static function getId(): string
