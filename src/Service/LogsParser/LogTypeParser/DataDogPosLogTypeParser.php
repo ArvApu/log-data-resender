@@ -10,7 +10,7 @@ class DataDogPosLogTypeParser implements LogTypeParserInterface
 {
     public static function getId(): string
     {
-        return 'ddpos';
+        return 'dd_pos';
     }
 
     public function parse(array $event): ?ParsedLog

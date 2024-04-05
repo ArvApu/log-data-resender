@@ -6,33 +6,34 @@
     "authors": [
         {
             "name": "Arvydas Apulskis",
-            "email": "arvydas.apulskis@visma.com"
+            "email": "arvydas.apulskis@twoday.com"
         }
     ],
     "require": {
-        "php": ">=8.1.2",
+        "php": ">=8.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "aws/aws-sdk-php": "^3.219",
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.15",
-        "guzzlehttp/guzzle": "^7.3",
-        "symfony/console": "6.0.*",
-        "symfony/dotenv": "6.0.*",
-        "symfony/flex": "^2",
-        "symfony/framework-bundle": "6.0.*",
-        "symfony/runtime": "6.0.*",
-        "symfony/yaml": "6.0.*"
+        "guzzlehttp/guzzle": "^7.8",
+        "symfony/console": "^7.0",
+        "symfony/dotenv": "^7.0",
+        "symfony/flex": "^2.4",
+        "symfony/framework-bundle": "^7.0",
+        "symfony/runtime": "^7.0",
+        "symfony/yaml": "^7.0"
     },
     "require-dev": {
+        "brianium/paratest": "^7.4",
         "phpstan/phpstan": "^1.5",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^10.0",
         "squizlabs/php_codesniffer": "^3.6",
-        "symfony/browser-kit": "6.0.*",
-        "symfony/css-selector": "6.0.*",
+        "symfony/browser-kit": "^7.0",
+        "symfony/css-selector": "^7.0",
         "symfony/maker-bundle": "^1.49",
-        "symfony/phpunit-bridge": "^6.0"
+        "symfony/phpunit-bridge": "^7.0"
     },
     "config": {
         "allow-plugins": {
@@ -80,6 +81,7 @@
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --color=always --coverage-clover=\"var/analysis/coverage.xml\" --log-junit=\"var/analysis/tests.xml\""
         ],
+        "paratest": "paratest",
         "analysis:phpcs": "phpcs -p || exit 0",
         "analysis:phpstan": "phpstan analyse --error-format=json > var/analysis/phpstan.json || exit 0",
         "analysis:full": [
@@ -94,7 +96,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "6.0.*"
+            "require": "7.0.*"
         }
     }
 }

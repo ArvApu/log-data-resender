@@ -14,7 +14,7 @@ class PosLogTypeParserTest extends UnitTestCase
     {
         $parser = new PosLogTypeParser();
 
-        $data = file_get_contents($this->getFixtures('pos-logs-mock.json'));
+        $data = file_get_contents(self::getFixtures('pos-logs-mock.json'));
 
         if ($data === false) {
             $this->fail('Missing data fixture.');

@@ -6,7 +6,7 @@ namespace Tests;
 
 trait HasFixtures
 {
-    protected function getFixtures(?string $path = null): string
+    protected static function getFixtures(?string $path = null): string
     {
         $base = __DIR__ . '/Fixtures';
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Service\Service;
 
 use App\Service\Sender\ResultsAccumulator;
+use PHPUnit\Framework\Attributes\Depends;
 use Tests\UnitTestCase;
 
 class ResultsAccumulatorTest extends UnitTestCase
@@ -24,9 +25,7 @@ class ResultsAccumulatorTest extends UnitTestCase
         return $accumulator;
     }
 
-    /**
-     * @depends testIncrement
-     */
+    #[Depends('testIncrement')]
     public function testCanHaveMultipleCounts(ResultsAccumulator $accumulator): void
     {
         $accumulator->increment('new_fake_count_1');

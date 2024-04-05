@@ -15,9 +15,9 @@ class Sender
     private bool $withCheckpoints = false;
 
     public function __construct(
-        private Client $client,
-        private string $apiKey,
-        private SenderLogger $logger,
+        private readonly Client $client,
+        private readonly string $apiKey,
+        private readonly SenderLogger $logger,
     ) {
     }
 

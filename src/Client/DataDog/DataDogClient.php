@@ -43,7 +43,7 @@ class DataDogClient implements LogsProviderSourceInterface
         $data['page'] = [
             'cursor' => null,
             // Max limit is 5000, but we use smaller chunks to preserve memory
-            'limit' => 100,
+            'limit' => 1000,
         ];
 
         do {

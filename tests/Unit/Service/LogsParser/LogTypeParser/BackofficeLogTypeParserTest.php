@@ -14,7 +14,7 @@ class BackofficeLogTypeParserTest extends UnitTestCase
     {
         $parser = new BackofficeLogTypeParser();
 
-        $data = file_get_contents($this->getFixtures('bo-logs-mock.json'));
+        $data = file_get_contents(self::getFixtures('bo-logs-mock.json'));
 
         if ($data === false) {
             $this->fail('Missing data fixture.');

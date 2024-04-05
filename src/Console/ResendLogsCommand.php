@@ -9,11 +9,13 @@ use App\Service\LogsParser\LogsParser;
 use App\Service\LogsProvider\LogsProvider;
 use App\Service\LogsProvider\Source\FileSource;
 use App\Service\Sender\Sender;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'app:resend-logs', description: 'Command resends requests from failed logs')]
 class ResendLogsCommand extends Command
 {
     public function __construct(
@@ -24,9 +26,6 @@ class ResendLogsCommand extends Command
     ) {
         parent::__construct();
     }
-
-    protected static $defaultName = 'app:resend-logs';
-    protected static $defaultDescription = 'Command resends requests from failed logs';
 
     protected function configure(): void
     {

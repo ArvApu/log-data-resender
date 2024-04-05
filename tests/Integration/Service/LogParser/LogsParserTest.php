@@ -9,11 +9,9 @@ use App\Service\LogsParser\LogTypeParser\BackofficeLogTypeParser;
 use App\Service\LogsParser\LogTypeParser\DataDogLogTypeParser;
 use App\Service\LogsParser\LogTypeParser\PosLogTypeParser;
 use App\Service\LogsParser\ParsedLog;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\IntegrationTestCase;
 
-/**
- * @coversDefaultClass \App\Service\LogsParser\LogsParser
- */
 class LogsParserTest extends IntegrationTestCase
 {
     private LogsParser $parser;
@@ -23,16 +21,7 @@ class LogsParserTest extends IntegrationTestCase
         $this->parser = static::getContainer()->get(LogsParser::class);
     }
 
-    /**
-     * @covers ::parse
-     * @dataProvider logsParserTestDataProvider
-     *
-     * @param array $expected
-     * @param array $logs
-     * @param string|null $parseType
-     *
-     * @return void
-     */
+    #[DataProvider('logsParserTestDataProvider')]
     public function testParse(array $logs, array $expected, ?string $parseType = null): void
     {
         if ($parseType !== null) {
@@ -48,11 +37,11 @@ class LogsParserTest extends IntegrationTestCase
         $this->assertEquals($results, $expected);
     }
 
-    public function logsParserTestDataProvider(): array
+    public static function logsParserTestDataProvider(): array
     {
         $data = [
             'Is able to parse backoffice logs' => [
-                'logs' => json_decode(file_get_contents($this->getFixtures('bo-logs-mock.json')), true),
+                'logs' => json_decode(file_get_contents(self::getFixtures('bo-logs-mock.json')), true),
                 'expected' => [
                     new ParsedLog(
                         json_encode([
@@ -195,7 +184,7 @@ class LogsParserTest extends IntegrationTestCase
                 'parseType' => BackofficeLogTypeParser::getId(),
             ],
             'Is able to parse pos logs' => [
-                'logs' => json_decode(file_get_contents($this->getFixtures('pos-logs-mock.json')), true),
+                'logs' => json_decode(file_get_contents(self::getFixtures('pos-logs-mock.json')), true),
                 'expected' => [
                     new ParsedLog(
                         json_encode([
@@ -455,7 +444,7 @@ class LogsParserTest extends IntegrationTestCase
                 'parseType' => PosLogTypeParser::getId(),
             ],
             'Is able to parse data dog logs' => [
-                'logs' => json_decode(file_get_contents($this->getFixtures('dd-logs-mock.json')), true),
+                'logs' => json_decode(file_get_contents(self::getFixtures('dd-logs-mock.json')), true),
                 'expected' => [
                     new ParsedLog(
                         json_encode([
