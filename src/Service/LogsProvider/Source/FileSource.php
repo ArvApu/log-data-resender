@@ -6,7 +6,7 @@ namespace App\Service\LogsProvider\Source;
 
 use App\Service\FilesManager;
 
-class FileSource implements LogsProviderSourceInterface
+readonly class FileSource implements LogsProviderSourceInterface
 {
     public function __construct(
         private FilesManager $filesManager

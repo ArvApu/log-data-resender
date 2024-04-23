@@ -6,7 +6,7 @@ namespace App\Service\LogsProvider\Source;
 
 use App\Service\FilesManager;
 
-class DatadogFileSource implements LogsProviderSourceInterface
+readonly class DatadogFileSource implements LogsProviderSourceInterface
 {
     public function __construct(
         private FilesManager $filesManager

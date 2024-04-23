@@ -15,7 +15,7 @@ class SenderLogger implements LoggerInterface
     use LoggerTrait;
 
     public function __construct(
-       private SenderLogRepository $senderLogRepository,
+       private readonly SenderLogRepository $senderLogRepository,
     ) {
     }
 

@@ -6,5 +6,5 @@ namespace App\Constant\Value;
 
 final class DataDogEndpoint
 {
-    public const LOG_SEARCH = '/logs/events/search';
+    public const string LOG_SEARCH = '/logs/events/search';
 }

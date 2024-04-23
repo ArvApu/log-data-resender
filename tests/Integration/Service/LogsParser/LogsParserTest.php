@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Service\LogParser;
+namespace Tests\Integration\Service\LogsParser;
 
 use App\Service\LogsParser\LogsParser;
 use App\Service\LogsParser\LogTypeParser\BackofficeLogTypeParser;

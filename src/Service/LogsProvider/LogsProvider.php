@@ -6,11 +6,11 @@ namespace App\Service\LogsProvider;
 
 use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 
-class LogsProvider
+readonly class LogsProvider
 {
     public function __construct(
         /** @var LogsProviderSourceInterface[] $sources */
-        private readonly iterable $sources
+        private iterable $sources
     ) {
     }
 
