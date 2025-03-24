@@ -16,17 +16,23 @@ class DataDogLogTypeParser implements LogTypeParserInterface
     public function parse(array $event): ?ParsedLog
     {
         $request = $event['attributes']['attributes']['request'] ?? null;
-        $params = $event['attributes']['attributes']['info']['api']['params'] ?? null;
+        $params = $event['attributes']['attributes']['info'] ?? null;
 
         if ($params === null || $request === null) {
             return null;
         }
 
+        $params = json_decode($params, true);
+
+        if (!isset($params['request_data'])) {
+            return null;
+        }
+
         return new ParsedLog(
-            $params,
+            json_encode($params['request_data']),
             $request['method'],
             $request['host'] . $request['url'],
-            $event['attributes']['attributes']['info']['api']['id'],
+            $event['attributes']['attributes']['api']['id'],
             $event['attributes']['attributes']['user']['id'],
         );
     }
