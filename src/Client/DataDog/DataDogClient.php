@@ -46,6 +46,8 @@ class DataDogClient implements LogsProviderSourceInterface
             'limit' => 1000,
         ];
 
+        $data['sort'] = 'timestamp';
+
         do {
             $response = $this->request(DataDogEndpoint::LOG_SEARCH, Request::METHOD_POST, $data);
 
