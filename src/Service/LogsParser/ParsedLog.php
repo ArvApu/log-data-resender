@@ -14,6 +14,7 @@ readonly class ParsedLog implements \JsonSerializable
         private string $url,
         private string $modelId,
         private ?string $masterUserId = null,
+        private bool $isSecuredForPost = true,
     ) {
     }
 
@@ -40,6 +41,11 @@ readonly class ParsedLog implements \JsonSerializable
     public function getMasterUserId(): ?string
     {
         return $this->masterUserId;
+    }
+
+    public function isSecuredForPost(): bool
+    {
+        return $this->isSecuredForPost;
     }
 
     /** @phpstan-ignore-next-line */

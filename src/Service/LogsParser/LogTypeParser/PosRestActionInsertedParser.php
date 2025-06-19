@@ -31,9 +31,11 @@ class PosRestActionInsertedParser implements LogTypeParserInterface
         }
 
         // TODO: url cannot be extracted from logs so we must find other way to get them, now hard-coding
-        $url = "https://pos-etail.wallmob.com/{$resource}";
+        $baseUrl = 'https://pos-etail.wallmob.com';
 
-        return new ParsedLog(json_encode($data->parameters), $method, $url, $id, $masterUserId);
+        $url = ($method === 'PUT' || $method === 'PATCH') ? "$baseUrl/{$resource}/$id" : "$baseUrl/{$resource}";
+
+        return new ParsedLog(json_encode($data->parameters), $method, $url, $id, $masterUserId, false);
     }
 
     private function resolveMethod(int $typeId): ?string

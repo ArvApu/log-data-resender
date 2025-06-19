@@ -35,7 +35,7 @@ class Sender
             $this->progress($results->getCount('completed'));
 
             // Protects from accidentally changing data with update methods (PATCH/PUT).
-            if ($parsedLog->getMethod() !== 'POST') {
+            if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== 'POST') {
                 $results->increment('not_a_post_request');
 
                 continue;
