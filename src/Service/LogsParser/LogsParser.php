@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\LogsParser;
 
+use App\Service\LogsModifier\LogModificationPipeline;
 use App\Service\LogsParser\LogTypeParser\LogTypeParserInterface;
 
 class LogsParser
@@ -18,8 +19,10 @@ class LogsParser
      */
     private ?LogTypeParserInterface $parser = null;
 
-    public function __construct(iterable $parsers)
-    {
+    public function __construct(
+        private readonly LogModificationPipeline $logModificationPipeline,
+        iterable $parsers
+    ) {
         $indexedParsesList = [];
 
         foreach ($parsers as $parser) {
@@ -51,6 +54,8 @@ class LogsParser
     public function parse(iterable $logs): iterable
     {
         foreach ($logs as $log) {
+            $log = $this->logModificationPipeline->process($log);
+
             $parsedLog = $this->parseLog($log);
 
             if ($parsedLog === null) {

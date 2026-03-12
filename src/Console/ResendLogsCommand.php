@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console;
 
 use App\Service\FilesManager;
+use App\Service\LogsModifier\LogModificationPipeline;
 use App\Service\LogsParser\LogsParser;
 use App\Service\LogsProvider\LogsProvider;
 use App\Service\LogsProvider\Source\FileSource;
@@ -22,7 +23,8 @@ class ResendLogsCommand extends Command
         private FilesManager $filesManager,
         private Sender $sender,
         private LogsParser $logsParser,
-        private LogsProvider $logsProvider
+        private LogsProvider $logsProvider,
+        private LogModificationPipeline $logModificationPipeline,
     ) {
         parent::__construct();
     }
@@ -51,6 +53,12 @@ class ResendLogsCommand extends Command
         );
 
         $this->addOption(
+            name: 'modifiers',
+            mode: InputOption::VALUE_OPTIONAL,
+            description: 'Comma-separated list of modifiers to use for logs modification before parsing from source.',
+        );
+
+        $this->addOption(
             name: 'source',
             mode: InputOption::VALUE_OPTIONAL,
             description: 'A source from where logs should be extracted.',
@@ -68,7 +76,7 @@ class ResendLogsCommand extends Command
         $filters = is_dir($filter)
             ? array_map(
                 fn (string $subFilter): string => "{$filter}/$subFilter",
-                array_diff(scandir($filter), ['.', '..'])
+                array_diff(scandir($filter), ['.', '..']),
             )
             : [$filter];
 
@@ -108,6 +116,12 @@ class ResendLogsCommand extends Command
 
         if ($input->getOption('checkpoints') !== null) {
             $this->sender->useCheckpoints();
+        }
+
+        if ($input->getOption('modifiers') !== null) {
+            $this->logModificationPipeline->setEnabledModifiers(
+                array_map('trim', explode(',', $input->getOption('modifiers')))
+            );
         }
     }
 }

@@ -20,6 +20,9 @@ services:
     App\Service\LogsProvider\Source\LogsProviderSourceInterface:
       tags: ['app.logs_provider.sources']
 
+    App\Service\LogsModifier\LogModifierInterface:
+      tags: ['app.logs_modfier.modfiers']
+
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
@@ -59,6 +62,10 @@ services:
   App\Service\LogsProvider\LogsProvider:
     arguments:
       $sources: !tagged_iterator 'app.logs_provider.sources'
+
+  App\Service\LogsModifier\LogModificationPipeline:
+    arguments:
+      $modifiers: !tagged_iterator 'app.logs_modfier.modfiers'
 
   # TODO: REDO ALL GUZZLE USAGES TO: https://symfony.com/doc/current/http_client.html
   GuzzleHttp\Client:
