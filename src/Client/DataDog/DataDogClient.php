@@ -6,10 +6,9 @@ namespace App\Client\DataDog;
 
 use App\Constant\Value\DataDogEndpoint;
 use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use Psr\Http\Message\ResponseInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,7 +21,7 @@ readonly class DataDogClient implements LogsProviderSourceInterface
         private string $appKey,
         #[Autowire(env: 'string:DD_API_KEY')]
         private string $apiKey,
-        private Client $client,
+        private HttpClientInterface $httpClient,
     ) {
     }
 
@@ -51,8 +50,8 @@ readonly class DataDogClient implements LogsProviderSourceInterface
 
         $response = $this->request(DataDogEndpoint::LOG_SEARCH, Request::METHOD_POST, $data);
 
-        $headers = $response->getHeaders();
-        $response = json_decode($response->getBody()->getContents(), true);
+        $headers = $response['headers'];
+        $response = json_decode($response['content'], true);
 
         if (((int) $headers['x-ratelimit-remaining'][0]) > 0) {
             return $response['data'][0] ?? null;
@@ -88,8 +87,8 @@ readonly class DataDogClient implements LogsProviderSourceInterface
         do {
             $response = $this->request(DataDogEndpoint::LOG_SEARCH, Request::METHOD_POST, $data);
 
-            $headers = $response->getHeaders();
-            $response = json_decode($response->getBody()->getContents(), true);
+            $headers = $response['headers'];
+            $response = json_decode($response['content'], true);
 
             if ($response === null) {
                 break;
@@ -110,15 +109,23 @@ readonly class DataDogClient implements LogsProviderSourceInterface
         } while ($data['page']['cursor'] !== null);
     }
 
-    protected function request(string $endpoint, string $method, array $data = []): ResponseInterface
+    protected function request(string $endpoint, string $method, array $data = []): array
     {
+        $url = $this->getUrl($endpoint);
+        $options = $this->getOptions($method, $data);
+
         try {
-            return $this->client->request($method, $this->getUrl($endpoint), $this->getOptions($method, $data));
-        } catch (RequestException $e) {
+            $response = $this->httpClient->request($method, $url, $options);
+            $headers = $response->getHeaders();
+            $content = $response->getContent();
+
+            return [
+                'headers' => $headers,
+                'content' => $content,
+            ];
+
+        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
             // TODO: log this exception to logger and then return null or stop whole process?
-            die($e->getMessage());
-        } catch (GuzzleException $e) {
-            // This is critical exception so we must stop
             die($e->getMessage());
         }
     }

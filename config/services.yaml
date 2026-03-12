@@ -35,7 +35,3 @@ services:
     class: Aws\CloudWatchLogs\CloudWatchLogsClient
     arguments:
       $args: '%app.client.cloudwatch.arguments%'
-
-  # TODO: REDO ALL GUZZLE USAGES TO: https://symfony.com/doc/current/http_client.html
-  GuzzleHttp\Client:
-    shared: false

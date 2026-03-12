@@ -6,8 +6,9 @@ namespace App\Service\Sender;
 
 use App\Log\SenderLogger;
 use App\Service\LogsParser\ParsedLog;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class Sender
@@ -18,14 +19,14 @@ class Sender
     public function __construct(
         #[Autowire(env: 'string:MASTER_KEY')]
         private readonly string $apiKey,
-        private readonly Client $client,
+        private readonly HttpClientInterface $httpClient,
         private readonly SenderLogger $logger,
     ) {
     }
 
     /**
      * @param ParsedLog[] $parsedLogs
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
      */
     public function sendData(iterable $parsedLogs): ResultsAccumulator
     {
@@ -66,7 +67,7 @@ class Sender
             }
 
             try {
-                $this->client->request(
+                $response = $this->httpClient->request(
                     $parsedLog->getMethod(),
                     $parsedLog->getUrl(),
                     [
@@ -74,10 +75,17 @@ class Sender
                         'headers' => $this->getHeaders($parsedLog),
                     ],
                 );
-            } catch (RequestException $requestException) {
-                $results->increment('failed');
 
-                $content = json_decode((string) $requestException->getResponse()?->getBody()->getContents());
+                // To ensure the request is actually sent and to trigger any potential exceptions related to the request.
+                $response->getHeaders();
+            } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
+                $results->increment('failed');
+                $content = null;
+                $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
+
+                if ($response) {
+                    $content = json_decode($response->getContent(false));
+                }
 
                 if (isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken')) {
                     $results->increment('failed_already_existed');
@@ -93,8 +101,8 @@ class Sender
                         'master_user_id' => $parsedLog->getMasterUserId(),
                         'session' => $this->getSessionId(),
                         'response_data' => [
-                            'error'      => $content->error ?? '',
-                            'errors'     => $content->errors ?? '',
+                            'error' => $content->error ?? '',
+                            'errors' => $content->errors ?? '',
                             'error_code' => $content->errorCode ?? '',
                         ],
                     ],
@@ -127,12 +135,12 @@ class Sender
 
         echo PHP_EOL .
             'Going to do ' . $parsedEventLog->getMethod() .
-            ' request to '  . $parsedEventLog->getUrl() .
-            ' url for '     . $parsedEventLog->getMasterUserId() . PHP_EOL;
+            ' request to ' . $parsedEventLog->getUrl() .
+            ' url for ' . $parsedEventLog->getMasterUserId() . PHP_EOL;
 
         $pb = "id = \"{$parsedEventLog->getModelId()}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
 
-        echo $pb . PHP_EOL ;
+        echo $pb . PHP_EOL;
         shell_exec('echo ' . escapeshellarg($pb) . ' | pbcopy');
 
         echo 'Continue? [yes/no/abort]' . PHP_EOL;
