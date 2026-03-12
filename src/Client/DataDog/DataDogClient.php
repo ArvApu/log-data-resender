@@ -12,19 +12,52 @@ use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class DataDogClient implements LogsProviderSourceInterface
+readonly class DataDogClient implements LogsProviderSourceInterface
 {
     public function __construct(
-        private readonly Client $client,
-        private readonly string $host,
-        private readonly string $appKey,
-        private readonly string $apiKey,
+        private Client $client,
+        private string $host,
+        private string $appKey,
+        private string $apiKey,
     ) {
     }
 
     public static function getId(): string
     {
         return 'datadog';
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getLog(string $filter): ?array
+    {
+        $data = json_decode($filter, true);
+
+        if ($data === null) {
+            throw new \Exception('Invalid json string provided for data dog filter');
+        }
+
+        $data['filter'] ??= $data;
+
+        $data['page'] = [
+            'cursor' => null,
+            'limit' => 1,
+        ];
+
+        $response = $this->request(DataDogEndpoint::LOG_SEARCH, Request::METHOD_POST, $data);
+
+        $headers = $response->getHeaders();
+        $response = json_decode($response->getBody()->getContents(), true);
+
+        if (((int) $headers['x-ratelimit-remaining'][0]) > 0) {
+            return $response['data'][0] ?? null;
+        }
+
+        // Adding one second buffer to avoid rare occurrences of rate limit not being reset yet
+        sleep(((int) $headers['x-ratelimit-reset'][0]) + 1);
+
+        return $response['data'][0] ?? null;
     }
 
     /**
