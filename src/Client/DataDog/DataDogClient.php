@@ -10,15 +10,19 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 
 readonly class DataDogClient implements LogsProviderSourceInterface
 {
     public function __construct(
-        private Client $client,
+        #[Autowire(param: 'app.client.datadog.host')]
         private string $host,
+        #[Autowire(env: 'string:DD_APP_KEY')]
         private string $appKey,
+        #[Autowire(env: 'string:DD_API_KEY')]
         private string $apiKey,
+        private Client $client,
     ) {
     }
 

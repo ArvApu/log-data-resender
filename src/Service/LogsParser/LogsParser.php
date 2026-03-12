@@ -6,6 +6,7 @@ namespace App\Service\LogsParser;
 
 use App\Service\LogsModifier\LogModificationPipeline;
 use App\Service\LogsParser\LogTypeParser\LogTypeParserInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class LogsParser
 {
@@ -20,8 +21,9 @@ class LogsParser
     private ?LogTypeParserInterface $parser = null;
 
     public function __construct(
+        #[AutowireIterator(LogTypeParserInterface::class)]
+        iterable $parsers,
         private readonly LogModificationPipeline $logModificationPipeline,
-        iterable $parsers
     ) {
         $indexedParsesList = [];
 

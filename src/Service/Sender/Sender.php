@@ -8,6 +8,7 @@ use App\Log\SenderLogger;
 use App\Service\LogsParser\ParsedLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class Sender
 {
@@ -15,8 +16,9 @@ class Sender
     private bool $withCheckpoints = false;
 
     public function __construct(
-        private readonly Client $client,
+        #[Autowire(env: 'string:MASTER_KEY')]
         private readonly string $apiKey,
+        private readonly Client $client,
         private readonly SenderLogger $logger,
     ) {
     }

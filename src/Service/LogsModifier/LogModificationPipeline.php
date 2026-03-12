@@ -2,14 +2,15 @@
 
 namespace App\Service\LogsModifier;
 
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+
 class LogModificationPipeline
 {
     private array $enabledModifiers = [];
 
     public function __construct(
-        /**
-         * @var LogModifierInterface[]
-         */
+        /** @var LogModifierInterface[] */
+        #[AutowireIterator(LogModifierInterface::class)]
         private readonly iterable $modifiers
     ) {
     }
