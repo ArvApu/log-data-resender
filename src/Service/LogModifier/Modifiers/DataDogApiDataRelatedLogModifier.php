@@ -4,7 +4,9 @@ namespace App\Service\LogModifier\Modifiers;
 
 use App\Client\DataDog\DataDogClient;
 use App\Service\LogModifier\LogModifierInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(priority: 10)]
 readonly class DataDogApiDataRelatedLogModifier implements LogModifierInterface
 {
     private const int DELTA_MS = 1000;

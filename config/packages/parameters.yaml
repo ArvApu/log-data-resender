@@ -10,3 +10,5 @@ parameters:
     credentials:
       key: '%env(AWS_KEY)%'
       secret: '%env(AWS_SECRET)%'
+
+  app.webservices.host: 'https://pos-etail.wallmob.com'

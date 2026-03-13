@@ -31,7 +31,7 @@ class DataDogLogTypeParser implements LogTypeParserInterface
         return new ParsedLog(
             json_encode($params['request_data']),
             $request['method'],
-            $request['host'] . $request['url'],
+            ($event['_host'] ?? $request['host']) . $request['url'],
             $event['attributes']['attributes']['api']['id'],
             $event['attributes']['attributes']['user']['id'],
         );
