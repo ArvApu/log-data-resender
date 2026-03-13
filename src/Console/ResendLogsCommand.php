@@ -32,13 +32,6 @@ class ResendLogsCommand extends Command
     protected function configure(): void
     {
         $this->addOption(
-            name: 'checkpoints',
-            shortcut: 'c',
-            mode: InputOption::VALUE_REQUIRED,
-            description: 'Enable checkpoints between requests',
-        );
-
-        $this->addOption(
             name: 'parser',
             shortcut: 'p',
             mode: InputOption::VALUE_REQUIRED,
@@ -112,10 +105,6 @@ class ResendLogsCommand extends Command
     {
         if ($input->getOption('parser') !== null) {
             $this->logsParser->setParsingStrategy($input->getOption('parser'));
-        }
-
-        if ($input->getOption('checkpoints') !== null) {
-            $this->sender->useCheckpoints();
         }
 
         if ($input->getOption('modifiers') !== null) {

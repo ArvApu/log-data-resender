@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Service\Sender;
 
+use App\Constant\Enum\ResultCategory;
+
 class ResultsAccumulator
 {
     private array $counts = [];
 
-    public function getCount(string $id): int
+    public function getCount(ResultCategory $category): int
     {
+        $id = $category->value;
+
         return $this->counts[$id] ?? 0;
     }
 
@@ -18,8 +22,10 @@ class ResultsAccumulator
         return $this->counts;
     }
 
-    public function increment(string $id, int $incrementor = 1): void
+    public function increment(ResultCategory $category, int $incrementor = 1): void
     {
+        $id = $category->value;
+
         if (!isset($this->counts[$id])) {
             $this->counts[$id] = 0;
         }

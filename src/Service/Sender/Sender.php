@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service\Sender;
 
+use App\Constant\Enum\ResultCategory;
 use App\Log\SenderLogger;
 use App\Service\LogParser\ParsedLog;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -14,7 +16,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class Sender
 {
     private string $sessionId;
-    private bool $withCheckpoints = false;
 
     public function __construct(
         #[Autowire(env: 'string:MASTER_KEY')]
@@ -33,19 +34,19 @@ class Sender
         $results = new ResultsAccumulator();
 
         foreach ($parsedLogs as $index => $parsedLog) {
-            $results->increment('completed');
+            $results->increment(ResultCategory::COMPLETED);
 
-            $this->progress($results->getCount('completed'));
+            $this->progress($results->getCount(ResultCategory::COMPLETED));
 
             // Protects from accidentally changing data with update methods (PATCH/PUT).
-            if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== 'POST') {
-                $results->increment('not_a_post_request');
+            if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== Request::METHOD_POST) {
+                $results->increment(ResultCategory::NOT_POST);
 
                 continue;
             }
 
             if ($parsedLog->getMasterUserId() === null) {
-                $results->increment('missing_master_user_id');
+                $results->increment(ResultCategory::MISSING_MASTER_USER_ID);
 
                 $this->logger->warning(
                     'Missing master user id',
@@ -60,54 +61,7 @@ class Sender
                 continue;
             }
 
-            if (!$this->checkpoint($parsedLog)) {
-                $results->increment('skipped');
-
-                continue;
-            }
-
-            try {
-                $response = $this->httpClient->request(
-                    $parsedLog->getMethod(),
-                    $parsedLog->getUrl(),
-                    [
-                        'body' => $parsedLog->getBody(),
-                        'headers' => $this->getHeaders($parsedLog),
-                    ],
-                );
-
-                // To ensure the request is actually sent and to trigger any potential exceptions related to the request.
-                $response->getHeaders();
-            } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
-                $results->increment('failed');
-                $content = null;
-                $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
-
-                if ($response) {
-                    $content = json_decode($response->getContent(false));
-                }
-
-                if (isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken')) {
-                    $results->increment('failed_already_existed');
-
-                    continue;
-                }
-
-                $this->logger->error(
-                    $content->error ?? 'Failed to send request',
-                    [
-                        'failed_at' => $index,
-                        'model_id' => $parsedLog->getModelId(),
-                        'master_user_id' => $parsedLog->getMasterUserId(),
-                        'session' => $this->getSessionId(),
-                        'response_data' => [
-                            'error' => $content->error ?? '',
-                            'errors' => $content->errors ?? '',
-                            'error_code' => $content->errorCode ?? '',
-                        ],
-                    ],
-                );
-            }
+            $this->sendParsedLog($parsedLog, $results, $index);
         }
 
         echo PHP_EOL;
@@ -117,41 +71,50 @@ class Sender
         return $results;
     }
 
-    public function useCheckpoints(): self
+    public function sendParsedLog(ParsedLog $parsedLog, ResultsAccumulator $results, int $index): void
     {
-        $this->withCheckpoints = true;
+        try {
+            $response = $this->httpClient->request(
+                $parsedLog->getMethod(),
+                $parsedLog->getUrl(),
+                [
+                    'body' => $parsedLog->getBody(),
+                    'headers' => $this->getHeaders($parsedLog),
+                ],
+            );
 
-        return $this;
-    }
+            // To ensure the request is actually sent and to trigger any potential exceptions related to the request.
+            $response->getHeaders();
+        } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
+            $results->increment(ResultCategory::FAILED);
+            $content = null;
+            $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
 
-    /**
-     * @return bool return true to pass this checkpoint, false to stop
-     */
-    private function checkpoint(?ParsedLog $parsedEventLog = null): bool
-    {
-        if (!$this->withCheckpoints || $parsedEventLog === null) {
-            return true;
+            if ($response) {
+                $content = json_decode($response->getContent(false));
+            }
+
+            if (isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken')) {
+                $results->increment(ResultCategory::ALREADY_EXISTED);
+
+                return;
+            }
+
+            $this->logger->error(
+                $content->error ?? 'Failed to send request',
+                [
+                    'failed_at' => $index,
+                    'model_id' => $parsedLog->getModelId(),
+                    'master_user_id' => $parsedLog->getMasterUserId(),
+                    'session' => $this->getSessionId(),
+                    'response_data' => [
+                        'error' => $content->error ?? '',
+                        'errors' => $content->errors ?? '',
+                        'error_code' => $content->errorCode ?? '',
+                    ],
+                ],
+            );
         }
-
-        echo PHP_EOL .
-            'Going to do ' . $parsedEventLog->getMethod() .
-            ' request to ' . $parsedEventLog->getUrl() .
-            ' url for ' . $parsedEventLog->getMasterUserId() . PHP_EOL;
-
-        $pb = "id = \"{$parsedEventLog->getModelId()}\" and master_user_id = \"{$parsedEventLog->getMasterUserId()}\"";
-
-        echo $pb . PHP_EOL;
-        shell_exec('echo ' . escapeshellarg($pb) . ' | pbcopy');
-
-        echo 'Continue? [yes/no/abort]' . PHP_EOL;
-
-        $input = trim((string) fgets(STDIN));
-
-        if ($input === 'abort') {
-            die('Aborted' . PHP_EOL);
-        }
-
-        return $input === 'yes' || $input === 'y';
     }
 
     private function progress(int $done): void
