@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Client\DataDog;
 
 use App\Constant\Value\DataDogEndpoint;
-use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 
-readonly class DataDogClient implements LogsProviderSourceInterface
+readonly class DataDogClient
 {
     public function __construct(
         #[Autowire(param: 'app.client.datadog.host')]

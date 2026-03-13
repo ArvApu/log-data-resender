@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace App\Client\CloudWatch;
 
-use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 
-class CloudWatchClient implements LogsProviderSourceInterface
+readonly class CloudWatchClient
 {
-    public function __construct(private CloudWatchLogsClient $client)
-    {
-    }
-
-    public static function getId(): string
-    {
-        return 'cloudwatch';
+    public function __construct(
+        private CloudWatchLogsClient $client
+    ) {
     }
 
     public function getLogs(string $filter): iterable
