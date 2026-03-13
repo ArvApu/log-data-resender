@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Service\LogParser\LogTypeParser;
 
 use App\Service\LogParser\ParsedLog;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'cw')]
 class CloudWatchLogTypeParser implements LogTypeParserInterface
 {
-    public static function getId(): string
-    {
-        return 'cw';
-    }
-
     public function parse(array $event): ?ParsedLog
     {
         $request = $event['request'] ?? null;

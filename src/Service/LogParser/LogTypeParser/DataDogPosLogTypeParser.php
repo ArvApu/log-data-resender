@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Service\LogParser\LogTypeParser;
 
 use App\Service\LogParser\ParsedLog;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'dd_pos')]
 class DataDogPosLogTypeParser implements LogTypeParserInterface
 {
-    public static function getId(): string
-    {
-        return 'dd_pos';
-    }
-
     public function parse(array $event): ?ParsedLog
     {
         $body = $event['attributes']['attributes']['info'] ?? null;

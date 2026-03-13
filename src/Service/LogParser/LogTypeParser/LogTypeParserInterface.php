@@ -10,7 +10,5 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag(self::class)]
 interface LogTypeParserInterface
 {
-    public static function getId(): string;
-
     public function parse(array $event): ?ParsedLog;
 }

@@ -48,13 +48,13 @@ class ResendLogsCommand extends Command
         $this->addOption(
             name: 'modifiers',
             mode: InputOption::VALUE_OPTIONAL,
-            description: 'Comma-separated list of modifiers to use for logs modification before parsing from source.',
+            description: 'Comma-separated list of modifiers to use for logs modification before parsing from source',
         );
 
         $this->addOption(
             name: 'source',
             mode: InputOption::VALUE_OPTIONAL,
-            description: 'A source from where logs should be extracted.',
+            description: 'A source from where logs should be extracted',
             default: FileSource::getId(),
         );
     }

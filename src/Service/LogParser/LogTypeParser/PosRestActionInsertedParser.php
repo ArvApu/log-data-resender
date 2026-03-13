@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Service\LogParser\LogTypeParser;
 
 use App\Service\LogParser\ParsedLog;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'pos_rest_action_inserted')]
 class PosRestActionInsertedParser implements LogTypeParserInterface
 {
-    public static function getId(): string
-    {
-        return 'pos_rest_action_inserted';
-    }
-
     public function parse(array $event): ?ParsedLog
     {
         $masterUserId = $event['attributes']['attributes']['usr']['id'] ?? null;
