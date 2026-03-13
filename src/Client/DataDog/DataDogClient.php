@@ -24,11 +24,6 @@ readonly class DataDogClient
     ) {
     }
 
-    public static function getId(): string
-    {
-        return 'datadog';
-    }
-
     /**
      * @throws \Exception
      */

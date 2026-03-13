@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Service\FilesManager;
-use App\Service\LogModifier\LogModificationPipeline;
-use App\Service\LogParser\LogsParser;
-use App\Service\LogProvider\LogsProvider;
 use App\Service\LogProvider\Source\FileSource;
-use App\Service\Sender\Sender;
+use App\Service\LogResender\LogResender;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,11 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ResendLogsCommand extends Command
 {
     public function __construct(
-        private FilesManager $filesManager,
-        private Sender $sender,
-        private LogsParser $logsParser,
-        private LogsProvider $logsProvider,
-        private LogModificationPipeline $logModificationPipeline,
+        private LogResender $logResender,
     ) {
         parent::__construct();
     }
@@ -55,62 +47,40 @@ class ResendLogsCommand extends Command
             name: 'source',
             mode: InputOption::VALUE_OPTIONAL,
             description: 'A source from where logs should be extracted',
-            default: FileSource::getId(),
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->prepare($input);
-
         $filter = $input->getOption('filter');
         $source = $input->getOption('source');
+        $parser = $input->getOption('parser');
+        $modifiers = array_filter(array_map('trim', explode(',', $input->getOption('modifiers') ?? '')));
 
-        $filters = is_dir($filter)
-            ? array_map(
-                fn (string $subFilter): string => "{$filter}/$subFilter",
-                array_diff(scandir($filter), ['.', '..']),
-            )
-            : [$filter];
+        // Not using arguments so that command would be more readable and easier to use.
+        if ($source === null) {
+            throw new \Exception('Source option is required');
+        }
 
-        sort($filters, SORT_NATURAL);
+        if ($parser === null) {
+            throw new \Exception('Parser option is required');
+        }
 
-        foreach ($filters as $key => $filter) {
-            $logs = $this->logsProvider->getLogs($source, $filter);
+        $results = $this->logResender->resend($source, $filter, $parser, $modifiers);
 
-            $parsedLogs = $this->logsParser->parse($logs);
+        foreach ($results->getCounts() ?? [] as $id => $count) {
+            $output->writeln("<info>{$id}: {$count}</info>");
+        }
 
-            try {
-                $results = $this->sender->sendData($parsedLogs);
-            } catch (\Exception $exception) {
-                $output->writeln($exception->getMessage());
+        if ($results->getException() !== null) {
+            $output->writeln("<error>{$results->getException()->getMessage()}</error>");
 
-                return Command::FAILURE;
-            }
-
-            // Cleanup to save memory
-            unset($parsedLogs);
-
-            foreach ($results->getCounts() as $id => $count) {
-                $output->writeln("<info>{$id}: {$count}</info>");
-            }
-
-            $this->filesManager->putContentsToFile("_counts-{$key}.json", json_encode($results->getCounts()));
+            return Command::FAILURE;
         }
 
         return Command::SUCCESS;
-    }
-
-    private function prepare(InputInterface $input): void
-    {
-        if ($input->getOption('parser') !== null) {
-            $this->logsParser->setParsingStrategy($input->getOption('parser'));
-        }
-
-        if ($input->getOption('modifiers') !== null) {
-            $this->logModificationPipeline->setEnabledModifiers(
-                array_map('trim', explode(',', $input->getOption('modifiers')))
-            );
-        }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\LogModifier\Modifiers;
+namespace App\Service\LogModifier\Modifier;
 
 use App\Service\LogModifier\LogModifierInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

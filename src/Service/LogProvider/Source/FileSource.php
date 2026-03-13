@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service\LogProvider\Source;
 
-use App\Service\FilesManager;
+use App\Service\FileManager\FileManager;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'file')]
 readonly class FileSource implements LogsProviderFileSourceInterface
 {
     public function __construct(
-        private FilesManager $filesManager
+        private FileManager $filesManager
     ) {
-    }
-
-    public static function getId(): string
-    {
-        return 'file';
     }
 
     public function getLogs(string $filter): iterable

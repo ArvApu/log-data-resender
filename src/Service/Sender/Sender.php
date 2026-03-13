@@ -27,48 +27,51 @@ class Sender
 
     /**
      * @param ParsedLog[] $parsedLogs
-     * @throws \Exception
      */
     public function sendData(iterable $parsedLogs): ResultsAccumulator
     {
         $results = new ResultsAccumulator();
 
-        foreach ($parsedLogs as $index => $parsedLog) {
-            $results->increment(ResultCategory::COMPLETED);
+        try {
+            foreach ($parsedLogs as $index => $parsedLog) {
+                $results->increment(ResultCategory::COMPLETED);
 
-            $this->progress($results->getCount(ResultCategory::COMPLETED));
+                $this->progress($results->getCount(ResultCategory::COMPLETED));
 
-            // Protects from accidentally changing data with update methods (PATCH/PUT).
-            if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== Request::METHOD_POST) {
-                $results->increment(ResultCategory::NOT_POST);
+                // Protects from accidentally changing data with update methods (PATCH/PUT).
+                if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== Request::METHOD_POST) {
+                    $results->increment(ResultCategory::NOT_POST);
 
-                continue;
+                    continue;
+                }
+
+                if ($parsedLog->getMasterUserId() === null) {
+                    $results->increment(ResultCategory::MISSING_MASTER_USER_ID);
+
+                    $this->logger->warning(
+                        'Missing master user id',
+                        [
+                            'failed_at' => $index,
+                            'model_id' => $parsedLog->getModelId(),
+                            'master_user_id' => null,
+                            'session' => $this->getSessionId(),
+                        ],
+                    );
+
+                    continue;
+                }
+
+                $this->sendParsedLog($parsedLog, $results, $index);
             }
+        } catch (\Throwable $exception) {
+            $results->setException($exception);
+        } finally {
+            echo PHP_EOL;
 
-            if ($parsedLog->getMasterUserId() === null) {
-                $results->increment(ResultCategory::MISSING_MASTER_USER_ID);
+            unset($this->sessionId);
 
-                $this->logger->warning(
-                    'Missing master user id',
-                    [
-                        'failed_at' => $index,
-                        'model_id' => $parsedLog->getModelId(),
-                        'master_user_id' => null,
-                        'session' => $this->getSessionId(),
-                    ],
-                );
-
-                continue;
-            }
-
-            $this->sendParsedLog($parsedLog, $results, $index);
+            return $results;
         }
-
-        echo PHP_EOL;
-
-        unset($this->sessionId);
-
-        return $results;
     }
 
     public function sendParsedLog(ParsedLog $parsedLog, ResultsAccumulator $results, int $index): void

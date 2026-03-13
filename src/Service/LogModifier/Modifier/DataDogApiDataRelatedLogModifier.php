@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\LogModifier\Modifiers;
+namespace App\Service\LogModifier\Modifier;
 
 use App\Client\DataDog\DataDogClient;
 use App\Service\LogModifier\LogModifierInterface;

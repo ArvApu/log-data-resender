@@ -9,6 +9,7 @@ use App\Constant\Enum\ResultCategory;
 class ResultsAccumulator
 {
     private array $counts = [];
+    private ?\Throwable $exception = null;
 
     public function getCount(ResultCategory $category): int
     {
@@ -22,6 +23,11 @@ class ResultsAccumulator
         return $this->counts;
     }
 
+    public function getException(): ?\Throwable
+    {
+        return $this->exception;
+    }
+
     public function increment(ResultCategory $category, int $incrementor = 1): void
     {
         $id = $category->value;
@@ -31,5 +37,10 @@ class ResultsAccumulator
         }
 
         $this->counts[$id] += $incrementor;
+    }
+
+    public function setException(\Throwable $exception): void
+    {
+        $this->exception = $exception;
     }
 }

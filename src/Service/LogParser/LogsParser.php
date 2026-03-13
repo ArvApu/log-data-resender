@@ -25,6 +25,11 @@ class LogsParser
         $this->parser = $this->serviceLocator->get($parserType);
     }
 
+    public function setParsingModifiers(array $modifiers): void
+    {
+        $this->logModificationPipeline->setEnabledModifiers($modifiers);
+    }
+
     /**
      * @return ParsedLog[]
      */

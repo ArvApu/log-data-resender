@@ -5,27 +5,22 @@ declare(strict_types=1);
 namespace App\Service\LogProvider;
 
 use App\Service\LogProvider\Source\LogsProviderSourceInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 readonly class LogsProvider
 {
     public function __construct(
-        /** @var LogsProviderSourceInterface[] $sources */
-        #[AutowireIterator(LogsProviderSourceInterface::class)]
-        private iterable $sources
+        #[AutowireLocator(LogsProviderSourceInterface::class)]
+        private ServiceLocator $serviceLocator
     ) {
     }
 
     public function getLogs(string $source, string $filter): iterable
     {
-        foreach ($this->sources as $availableSource) {
-            if ($availableSource::getId() !== $source) {
-                continue;
-            }
+        /** @var LogsProviderSourceInterface $logsProvider */
+        $logsProvider = $this->serviceLocator->get($source);
 
-            return $availableSource->getLogs($filter);
-        }
-
-        return [];
+        return $logsProvider->getLogs($filter);
     }
 }

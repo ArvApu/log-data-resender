@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\FileManager;
 
-class FilesManager
+class FileManager
 {
-    private const DEFAULT_OUTPUT_DIRECTORY = 'var/output';
+    private const string DEFAULT_OUTPUT_DIRECTORY = 'var/output';
 
     public function __construct(
-        private string $projectDir,
-        private string $outputDir = self::DEFAULT_OUTPUT_DIRECTORY,
+        private readonly string $projectDir,
+        private readonly string $outputDir = self::DEFAULT_OUTPUT_DIRECTORY,
     ) {
     }
 
