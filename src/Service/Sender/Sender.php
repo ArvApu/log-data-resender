@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Sender;
 
 use App\Log\SenderLogger;
-use App\Service\LogsParser\ParsedLog;
+use App\Service\LogParser\ParsedLog;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

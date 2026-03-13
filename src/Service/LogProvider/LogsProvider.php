@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Service\LogsProvider;
+namespace App\Service\LogProvider;
 
-use App\Service\LogsProvider\Source\LogsProviderSourceInterface;
+use App\Service\LogProvider\Source\LogsProviderSourceInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 readonly class LogsProvider

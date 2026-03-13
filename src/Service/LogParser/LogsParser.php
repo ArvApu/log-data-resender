@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Service\LogsParser;
+namespace App\Service\LogParser;
 
-use App\Service\LogsModifier\LogModificationPipeline;
-use App\Service\LogsParser\LogTypeParser\LogTypeParserInterface;
+use App\Service\LogModifier\LogModificationPipeline;
+use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class LogsParser

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\LogsProvider\Source;
+namespace App\Service\LogProvider\Source;
 
 use App\Service\FilesManager;
 

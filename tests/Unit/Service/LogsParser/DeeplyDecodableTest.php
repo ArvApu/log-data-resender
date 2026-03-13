@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Service\LogsParser;
 
-use App\Service\LogsParser\DeeplyDecodable;
+use App\Service\LogParser\DeeplyDecodable;
 use Tests\UnitTestCase;
 
 class DeeplyDecodableTest extends UnitTestCase

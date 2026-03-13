@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Service\LogsParser\LogTypeParser;
+namespace App\Service\LogParser\LogTypeParser;
 
-use App\Service\LogsParser\ParsedLog;
+use App\Service\LogParser\ParsedLog;
 
 /**
  * @deprecated use DataDogPosLogType parser

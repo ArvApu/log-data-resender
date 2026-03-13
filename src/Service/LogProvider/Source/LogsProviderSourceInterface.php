@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\LogsProvider\Source;
+namespace App\Service\LogProvider\Source;
 
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 

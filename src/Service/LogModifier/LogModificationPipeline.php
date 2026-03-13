@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\LogsModifier;
+namespace App\Service\LogModifier;
 
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 

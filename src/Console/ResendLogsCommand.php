@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Console;
 
 use App\Service\FilesManager;
-use App\Service\LogsModifier\LogModificationPipeline;
-use App\Service\LogsParser\LogsParser;
-use App\Service\LogsProvider\LogsProvider;
-use App\Service\LogsProvider\Source\FileSource;
+use App\Service\LogModifier\LogModificationPipeline;
+use App\Service\LogParser\LogsParser;
+use App\Service\LogProvider\LogsProvider;
+use App\Service\LogProvider\Source\FileSource;
 use App\Service\Sender\Sender;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

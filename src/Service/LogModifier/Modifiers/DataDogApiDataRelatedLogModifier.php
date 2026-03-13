@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Service\LogsModifier\Modifiers;
+namespace App\Service\LogModifier\Modifiers;
 
 use App\Client\DataDog\DataDogClient;
-use App\Service\LogsModifier\LogModifierInterface;
+use App\Service\LogModifier\LogModifierInterface;
 
 readonly class DataDogApiDataRelatedLogModifier implements LogModifierInterface
 {
