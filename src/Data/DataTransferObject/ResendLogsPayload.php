@@ -11,12 +11,11 @@ final readonly class ResendLogsPayload
     public function __construct(
         public string $source,
         public string $parser,
-        public string $filter,
+        public string $filter = '',
         #[
-            Assert\Count(min: 1),
             Assert\Unique,
         ]
-        public array $modifiers,
+        public array $modifiers = [],
     ) {
     }
 }
