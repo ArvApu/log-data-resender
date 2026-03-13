@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service\LogParser;
+namespace App\Data\ValueObject;
 
 use JetBrains\PhpStorm\ArrayShape;
 
-readonly class ParsedLog implements \JsonSerializable
+final readonly class ParsedLog implements \JsonSerializable
 {
     public function __construct(
         private string $body,

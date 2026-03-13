@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace App\Service\Sender;
 
 use App\Constant\Enum\ResultCategory;
+use App\Data\ValueObject\ParsedLog;
 use App\Log\SenderLogger;
-use App\Service\LogParser\ParsedLog;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class Sender
 {
+    private static bool $isProgressTracked = false;
+
     private string $sessionId;
 
     public function __construct(
@@ -23,6 +25,11 @@ class Sender
         private readonly HttpClientInterface $httpClient,
         private readonly SenderLogger $logger,
     ) {
+    }
+
+    public static function toggleProgressTracking(bool $status): void
+    {
+        self::$isProgressTracked = $status;
     }
 
     /**
@@ -66,7 +73,7 @@ class Sender
         } catch (\Throwable $exception) {
             $results->setException($exception);
         } finally {
-            echo PHP_EOL;
+            $this->endProgress();
 
             unset($this->sessionId);
 
@@ -122,7 +129,16 @@ class Sender
 
     private function progress(int $done): void
     {
-        echo "\rProgress: {$done}";
+        if (self::$isProgressTracked) {
+            echo "\rProgress: {$done}";
+        }
+    }
+
+    private function endProgress(): void
+    {
+        if (self::$isProgressTracked) {
+            echo PHP_EOL;
+        }
     }
 
     private function getHeaders(ParsedLog $parsedLog): array

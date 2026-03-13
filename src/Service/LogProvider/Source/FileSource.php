@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\LogProvider\Source;
 
+use App\Attribute\ServiceMetadata;
 use App\Service\FileManager\FileManager;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'file')]
+#[
+    AsTaggedItem(index: 'file'),
+    ServiceMetadata(label: 'File', description: 'Provides logs from provided files.'),
+]
 readonly class FileSource implements LogsProviderFileSourceInterface
 {
     public function __construct(

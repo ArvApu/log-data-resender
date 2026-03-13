@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Service\LogsParser\LogTypeParser;
 
+use App\Data\ValueObject\ParsedLog;
 use App\Service\LogParser\LogTypeParser\PosLogTypeParser;
-use App\Service\LogParser\ParsedLog;
 use Tests\UnitTestCase;
 
 class PosLogTypeParserTest extends UnitTestCase

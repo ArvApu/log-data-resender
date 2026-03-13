@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\LogParser\LogTypeParser;
 
-use App\Service\LogParser\ParsedLog;
+use App\Attribute\ServiceMetadata;
+use App\Data\ValueObject\ParsedLog;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'cw')]
+#[
+    AsTaggedItem(index: 'cw'),
+    ServiceMetadata(label: 'CloudWatch Log Parser', description: 'Parses logs from AWS CloudWatch.'),
+]
 class CloudWatchLogTypeParser implements LogTypeParserInterface
 {
     public function parse(array $event): ?ParsedLog

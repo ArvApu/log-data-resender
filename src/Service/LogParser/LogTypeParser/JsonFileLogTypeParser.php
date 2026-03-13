@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\LogParser\LogTypeParser;
 
-use App\Service\LogParser\ParsedLog;
+use App\Attribute\ServiceMetadata;
+use App\Data\ValueObject\ParsedLog;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'json')]
+#[
+    AsTaggedItem(index: 'json'),
+    ServiceMetadata(label: 'JSON File Log Parser', description: 'Parses logs from JSON files.'),
+]
 class JsonFileLogTypeParser implements LogTypeParserInterface
 {
     public function parse(array $event): ?ParsedLog

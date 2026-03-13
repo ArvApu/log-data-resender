@@ -2,11 +2,18 @@
 
 namespace App\Service\LogModifier\Modifier;
 
+use App\Attribute\ServiceMetadata;
 use App\Client\DataDog\DataDogClient;
 use App\Service\LogModifier\LogModifierInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(priority: 10)]
+#[
+    AsTaggedItem(priority: 10),
+    ServiceMetadata(
+        label: 'DataDog API Data Related Log Modifier',
+        description: 'Fetches related logs from DataDog based on user, request, and API model information.',
+    ),
+]
 readonly class DataDogApiDataRelatedLogModifier implements LogModifierInterface
 {
     private const int DELTA_MS = 1000;

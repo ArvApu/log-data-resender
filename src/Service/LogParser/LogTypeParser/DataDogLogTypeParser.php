@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\LogParser\LogTypeParser;
 
-use App\Service\LogParser\ParsedLog;
+use App\Attribute\ServiceMetadata;
+use App\Data\ValueObject\ParsedLog;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'dd')]
+#[
+    AsTaggedItem(index: 'dd'),
+    ServiceMetadata(label: 'DataDog Log Parser', description: 'Parses logs from DataDog.'),
+]
 class DataDogLogTypeParser implements LogTypeParserInterface
 {
     public function parse(array $event): ?ParsedLog

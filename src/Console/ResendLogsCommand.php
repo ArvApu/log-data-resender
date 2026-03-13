@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Service\LogProvider\Source\FileSource;
 use App\Service\LogResender\LogResender;
+use App\Service\Sender\Sender;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,6 +55,8 @@ class ResendLogsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        Sender::toggleProgressTracking(true);
+
         $filter = $input->getOption('filter');
         $source = $input->getOption('source');
         $parser = $input->getOption('parser');

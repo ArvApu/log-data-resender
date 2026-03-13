@@ -2,9 +2,11 @@
 
 namespace App\Service\LogModifier\Modifier;
 
+use App\Attribute\ServiceMetadata;
 use App\Service\LogModifier\LogModifierInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+#[ServiceMetadata(label: 'Add Host', description: 'Adds host information to the log.')]
 readonly class AddHostLogModifier implements LogModifierInterface
 {
     public function __construct(

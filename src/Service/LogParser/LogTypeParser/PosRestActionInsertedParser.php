@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\LogParser\LogTypeParser;
 
-use App\Service\LogParser\ParsedLog;
+use App\Attribute\ServiceMetadata;
+use App\Data\ValueObject\ParsedLog;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'pos_rest_action_inserted')]
+#[
+    AsTaggedItem(index: 'pos_rest_action_inserted'),
+    ServiceMetadata(label: 'POS REST Action Inserted Log Parser', description: 'Parses logs for POS REST actions.'),
+]
 class PosRestActionInsertedParser implements LogTypeParserInterface
 {
     public function parse(array $event): ?ParsedLog

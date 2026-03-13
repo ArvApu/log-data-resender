@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service\LogProvider\Source;
 
+use App\Attribute\ServiceMetadata;
 use App\Service\FileManager\FileManager;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'datadog_file')]
+#[
+    AsTaggedItem(index: 'datadog_file'),
+    ServiceMetadata(label: 'DataDog File', description: 'Provides logs from DataDog files.'),
+]
 readonly class DatadogFileSource implements LogsProviderFileSourceInterface
 {
     public function __construct(

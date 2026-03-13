@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\LogParser;
 
+use App\Data\ValueObject\ParsedLog;
 use App\Service\LogModifier\LogModificationPipeline;
 use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
