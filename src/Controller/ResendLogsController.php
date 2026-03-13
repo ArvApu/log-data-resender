@@ -89,6 +89,13 @@ class ResendLogsController extends AbstractController
         ])]
         ?UploadedFile $file = null,
     ): Response {
+        /*
+         * TODO:
+         *  Make this as queue job, and have some progress indicator on the frontend if the job is still running,
+         *  and show the result once it's done. While sender is running, we could update some kind of row in database
+         *  with progress, and UI could fetch this progress with ajax call every X seconds, and show it on the frontend.
+         *  This way we can handle large files or filters without hitting request timeout.
+         */
         $result = [];
 
         $filterValue = $file === null ? $payload->filter : $file->getPathname();
