@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Sender;
+namespace App\Service\LogResender\Sender;
 
 use App\Constant\Enum\ResultCategory;
 use App\Data\ValueObject\ParsedLog;
 use App\Log\SenderLogger;
+use App\Service\LogResender\Progress\ProgressReporterInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
@@ -15,8 +16,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class Sender
 {
-    private static bool $isProgressTracked = false;
-
     private string $sessionId;
 
     public function __construct(
@@ -27,15 +26,13 @@ class Sender
     ) {
     }
 
-    public static function toggleProgressTracking(bool $status): void
-    {
-        self::$isProgressTracked = $status;
-    }
-
     /**
      * @param ParsedLog[] $parsedLogs
      */
-    public function sendData(iterable $parsedLogs): ResultsAccumulator
+    public function sendData(
+        iterable $parsedLogs,
+        ?ProgressReporterInterface $progressReporter = null,
+    ): ResultsAccumulator
     {
         $results = new ResultsAccumulator();
 
@@ -43,7 +40,7 @@ class Sender
             foreach ($parsedLogs as $index => $parsedLog) {
                 $results->increment(ResultCategory::COMPLETED);
 
-                $this->progress($results->getCount(ResultCategory::COMPLETED));
+                $progressReporter?->report($results);
 
                 // Protects from accidentally changing data with update methods (PATCH/PUT).
                 if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== Request::METHOD_POST) {
@@ -73,8 +70,6 @@ class Sender
         } catch (\Throwable $exception) {
             $results->setException($exception);
         } finally {
-            $this->endProgress();
-
             unset($this->sessionId);
 
             return $results;
@@ -96,7 +91,6 @@ class Sender
             // To ensure the request is actually sent and to trigger any potential exceptions related to the request.
             $response->getHeaders();
         } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
-            $results->increment(ResultCategory::FAILED);
             $content = null;
             $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
 
@@ -109,6 +103,8 @@ class Sender
 
                 return;
             }
+
+            $results->increment(ResultCategory::FAILED);
 
             $this->logger->error(
                 $content->error ?? 'Failed to send request',
@@ -124,20 +120,6 @@ class Sender
                     ],
                 ],
             );
-        }
-    }
-
-    private function progress(int $done): void
-    {
-        if (self::$isProgressTracked) {
-            echo "\rProgress: {$done}";
-        }
-    }
-
-    private function endProgress(): void
-    {
-        if (self::$isProgressTracked) {
-            echo PHP_EOL;
         }
     }
 

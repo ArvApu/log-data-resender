@@ -4,7 +4,11 @@
 
 {% block body %}
     <div style="max-width:650px;margin:48px auto;padding:40px 36px;background:linear-gradient(135deg,#f8fafc 0%,#e3e9f7 100%);border-radius:18px;box-shadow:0 4px 32px #0002;">
-        <h1 style="text-align:center;color:#2d3a4a;margin-bottom:28px;font-size:2.2em;letter-spacing:1px;font-weight:700;">Resend Logs</h1>
+        <h1 style="text-align:center;color:#2d3a4a;margin-bottom:12px;font-size:2.2em;letter-spacing:1px;font-weight:700;">Resend Logs</h1>
+        <p style="text-align:center;color:#4b5563;margin-bottom:26px;font-size:1.02em;">
+            Requests are now processed as background jobs to avoid timeouts.
+            <a href="{{ path('resend_jobs.view') }}" style="color:#2563eb;text-decoration:none;font-weight:600;">View jobs</a>
+        </p>
         {% if error %}
             <div style="color: #fff; background: #e74c3c; padding: 10px; border-radius: 5px; margin-bottom: 16px;">Error: {{ error }}</div>
         {% endif %}
@@ -64,22 +68,4 @@
             <button type="submit" style="background:linear-gradient(90deg,#4f8cff 0%,#1cb5e0 100%);color:#fff;padding:12px 38px;border:none;border-radius:8px;font-size:1.13em;cursor:pointer;box-shadow:0 2px 8px #1cb5e033;transition:background 0.2s;font-weight:600;letter-spacing:0.5px;">Resend Logs</button>
         </div>
     </form>
-    {% if result is not null %}
-        <h2>Results</h2>
-        {% if result|length == 0 %}
-            <div style="color:#888;">No results found.</div>
-        {% else %}
-        <ul>
-            {% for item in result %}
-                <li><strong>{{ item.filter }}</strong>:
-                    <ul>
-                        {% for id, count in item.counts %}
-                            <li>{{ id }}: {{ count }}</li>
-                        {% endfor %}
-                    </ul>
-                </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-    {% endif %}
 {% endblock %}

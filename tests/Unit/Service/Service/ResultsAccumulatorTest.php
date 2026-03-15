@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Service\Service;
 
-use App\Service\Sender\ResultsAccumulator;
+use App\Service\LogResender\Sender\ResultsAccumulator;
 use PHPUnit\Framework\Attributes\Depends;
 use Tests\UnitTestCase;
 

@@ -7,8 +7,9 @@ namespace App\Service\LogResender;
 use App\Service\FileManager\FileManager;
 use App\Service\LogParser\LogsParser;
 use App\Service\LogProvider\LogsProvider;
-use App\Service\Sender\ResultsAccumulator;
-use App\Service\Sender\Sender;
+use App\Service\LogResender\Progress\ProgressReporterInterface;
+use App\Service\LogResender\Sender\ResultsAccumulator;
+use App\Service\LogResender\Sender\Sender;
 
 readonly class LogResender
 {
@@ -20,8 +21,13 @@ readonly class LogResender
     ) {
     }
 
-    public function resend(string $source, string $filter, string $parser, array $modifiers): ?ResultsAccumulator
-    {
+    public function resend(
+        string $source,
+        string $filter,
+        string $parser,
+        array $modifiers,
+        ?ProgressReporterInterface $progressReporter = null
+    ): ?ResultsAccumulator {
         $results = null;
 
         $this->logsParser->setParsingStrategy($parser);
@@ -34,13 +40,15 @@ readonly class LogResender
 
             $parsedLogs = $this->logsParser->parse($logs);
 
-            $results = $this->sender->sendData($parsedLogs);
+            $results = $this->sender->sendData($parsedLogs, $progressReporter);
 
             // Cleanup to save memory
             unset($parsedLogs);
 
             $this->filesManager->putContentsToFile("_counts-{$key}.json", json_encode($results->getCounts()));
         }
+
+        $progressReporter?->finish($results);
 
         return $results;
     }
