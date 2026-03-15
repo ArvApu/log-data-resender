@@ -26,7 +26,7 @@ readonly class ResendLogsMessageHandler
     {
         $job = $this->resendJobRepository->find($message->getJobId());
 
-        if ($job === null || $job->getStatus() !== ResendJobStatus::QUEUED->value) {
+        if ($job === null || $job->getStatus() !== ResendJobStatus::QUEUED) {
             return;
         }
 

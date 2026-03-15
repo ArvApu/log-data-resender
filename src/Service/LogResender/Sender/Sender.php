@@ -91,7 +91,6 @@ class Sender
             // To ensure the request is actually sent and to trigger any potential exceptions related to the request.
             $response->getHeaders();
         } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
-            $results->increment(ResultCategory::FAILED);
             $content = null;
             $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
 
@@ -104,6 +103,8 @@ class Sender
 
                 return;
             }
+
+            $results->increment(ResultCategory::FAILED);
 
             $this->logger->error(
                 $content->error ?? 'Failed to send request',

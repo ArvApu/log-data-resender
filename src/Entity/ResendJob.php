@@ -16,8 +16,8 @@ class ResendJob
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 32)]
-    private string $status = ResendJobStatus::QUEUED->value;
+    #[ORM\Column(enumType: ResendJobStatus::class)]
+    private ResendJobStatus $status = ResendJobStatus::QUEUED;
 
     #[ORM\Column(length: 255)]
     private string $source;
@@ -72,12 +72,17 @@ class ResendJob
 
     public function getStatus(): ResendJobStatus
     {
-        return ResendJobStatus::from($this->status);
+        return $this->status;
+    }
+
+    public function getStatusValue(): string
+    {
+        return $this->status->value;
     }
 
     public function setStatus(ResendJobStatus $status): static
     {
-        $this->status = $status->value;
+        $this->status = $status;
 
         return $this;
     }
