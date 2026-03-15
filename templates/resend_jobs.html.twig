@@ -1,0 +1,245 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Resend Jobs{% endblock %}
+
+{% block body %}
+    <div style="max-width:1100px;margin:48px auto;padding:32px 28px;background:linear-gradient(135deg,#f8fafc 0%,#e8eef9 100%);border-radius:18px;box-shadow:0 4px 32px #0002;">
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <div>
+                <h1 style="color:#1f2937;margin:0 0 6px;font-size:2.1em;letter-spacing:0.5px;font-weight:700;">Resend Jobs</h1>
+                <div style="color:#4b5563;font-size:1.02em;">Track progress and status updates in near real time.</div>
+            </div>
+            <a href="{{ path('resend_logs.view') }}" style="background:linear-gradient(90deg,#4f8cff 0%,#1cb5e0 100%);color:#fff;padding:10px 24px;border-radius:8px;font-size:1em;text-decoration:none;box-shadow:0 2px 8px #1cb5e033;font-weight:600;">Create Job</a>
+        </div>
+        <div id="jobs" data-highlight-id="{{ highlight_job_id }}">
+            {% if jobs|length == 0 %}
+                <div id="no-jobs" style="padding:18px;background:#fff;border-radius:12px;color:#6b7280;">No jobs yet. Start a new resend from the form.</div>
+            {% else %}
+                {% for job in jobs %}
+                    {% set isHighlighted = highlight_job_id is not null and highlight_job_id == job.id %}
+                    <div data-job-id="{{ job.id }}" style="background:#fff;border-radius:14px;border:1px solid {{ isHighlighted ? '#60a5fa' : '#e5e7eb' }};padding:18px 20px;margin-bottom:16px;box-shadow:{{ isHighlighted ? '0 0 0 2px #93c5fd' : '0 2px 12px #0001' }};">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;">
+                            <div style="font-weight:700;color:#111827;font-size:1.1em;">Job #{{ job.id }}</div>
+                            <span data-field="status" style="padding:6px 10px;border-radius:999px;font-size:0.85em;font-weight:700;letter-spacing:0.3px;background:#eef2ff;color:#3730a3;text-transform:uppercase;">
+                                {{ job.status.value }}
+                            </span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 16px;color:#374151;font-size:0.96em;">
+                            <div><strong>Source:</strong> <span data-field="source">{{ source_labels[job.source]|default(job.source) }}</span></div>
+                            <div><strong>Parser:</strong> <span data-field="parser">{{ parser_labels[job.parser]|default(job.parser) }}</span></div>
+                        </div>
+                        <div style="margin-top:8px;color:#374151;font-size:0.96em;">
+                            <strong>Filter:</strong>
+                            <div data-field="filter" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;word-break:break-word;white-space:pre-wrap;line-height:1.4;">
+                                {% if job.filterFilePath %}
+                                    {{ job.filterFilePath|split('/')|last }}
+                                {% else %}
+                                    {{ job.filter ?: '-' }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;color:#374151;font-size:0.96em;">
+                            <strong>Modifiers:</strong>
+                            <div data-field="modifiers" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:grid;gap:6px;line-height:1.4;">
+                                {% if job.modifiers|length == 0 %}
+                                    -
+                                {% else %}
+                                    {% for modifier in job.modifiers %}
+                                        <div style="padding:6px 8px;background:#ffffff;border:1px solid #eef2f7;border-radius:8px;">
+                                            {{ modifier_labels[modifier]|default(modifier) }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e5e7eb;color:#374151;font-size:0.95em;">
+                            <strong>Counts:</strong>
+                            <div data-field="counts" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:grid;gap:6px;line-height:1.4;">
+                                {% if job.counts is empty %}
+                                    -
+                                {% else %}
+                                    {% for key, value in job.counts %}
+                                        <div style="display:flex;justify-content:space-between;gap:12px;padding:6px 8px;background:#ffffff;border:1px solid #eef2f7;border-radius:8px;">
+                                            <span>{{ key }}</span>
+                                            <span style="font-weight:600;color:#111827;">{{ value }}</span>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:#1f2937;">
+                            <div style="font-weight:600;">Processed: <span data-field="processed">{{ job.processedCount }}</span></div>
+                            <div style="color:#6b7280;">Updated: <span data-field="updatedAt">{{ job.updatedAt|date('Y-m-d H:i:s') }}</span></div>
+                        </div>
+                        <div data-field="error" style="margin-top:8px;color:#b91c1c;display:{{ job.errorMessage ? 'block' : 'none' }};">
+                            {{ job.errorMessage }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const jobsContainer = document.getElementById('jobs');
+        const highlightId = jobsContainer?.dataset?.highlightId;
+
+        const statusStyles = {
+            queued: { background: '#fef3c7', color: '#92400e' },
+            running: { background: '#dbeafe', color: '#1d4ed8' },
+            completed: { background: '#dcfce7', color: '#166534' },
+            failed: { background: '#fee2e2', color: '#991b1b' },
+        };
+
+        const formatDate = (value) => {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.valueOf())) return '-';
+            return date.toLocaleString();
+        };
+
+        const escapeHtml = (value) => {
+            const span = document.createElement('span');
+            span.textContent = value ?? '';
+            return span.innerHTML;
+        };
+
+        const sourceLabels = {{ source_labels|json_encode|raw }};
+        const parserLabels = {{ parser_labels|json_encode|raw }};
+        const modifierLabels = {{ modifier_labels|json_encode|raw }};
+
+        const resolveSourceLabel = (value) => sourceLabels?.[value] ?? value;
+        const resolveParserLabel = (value) => parserLabels?.[value] ?? value;
+        const resolveModifierLabel = (value) => modifierLabels?.[value] ?? value;
+
+        const formatCounts = (counts) => {
+            const entries = Object.entries(counts || {});
+            if (entries.length === 0) return '-';
+            return entries
+                .map(
+                    ([key, value]) => `
+                        <div style="display:flex;justify-content:space-between;gap:12px;padding:6px 8px;background:#ffffff;border:1px solid #eef2f7;border-radius:8px;">
+                            <span>${escapeHtml(key)}</span>
+                            <span style="font-weight:600;color:#111827;">${escapeHtml(String(value))}</span>
+                        </div>
+                    `
+                )
+                .join('');
+        };
+
+        const formatModifiers = (modifiers) => {
+            const items = modifiers || [];
+            if (items.length === 0) return '-';
+            return items
+                .map((item) => `<div style="padding:6px 8px;background:#ffffff;border:1px solid #eef2f7;border-radius:8px;">${escapeHtml(resolveModifierLabel(item))}</div>`)
+                .join('');
+        };
+
+        const formatFilter = (job) => {
+            if (job.filterFilePath) {
+                const parts = job.filterFilePath.split('/');
+                return parts[parts.length - 1];
+            }
+            return job.filter || '-';
+        };
+
+        const ensureJobCard = (job) => {
+            let card = jobsContainer.querySelector(`[data-job-id="${job.id}"]`);
+            if (card) return card;
+
+            const emptyState = document.getElementById('no-jobs');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            card = document.createElement('div');
+            card.dataset.jobId = job.id;
+            card.style.background = '#fff';
+            card.style.borderRadius = '14px';
+            card.style.border = '1px solid #e5e7eb';
+            card.style.padding = '18px 20px';
+            card.style.marginBottom = '16px';
+            card.style.boxShadow = '0 2px 12px #0001';
+
+            card.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;">
+                    <div style="font-weight:700;color:#111827;font-size:1.1em;">Job #${job.id}</div>
+                    <span data-field="status" style="padding:6px 10px;border-radius:999px;font-size:0.85em;font-weight:700;letter-spacing:0.3px;background:#eef2ff;color:#3730a3;text-transform:uppercase;">${job.status}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 16px;color:#374151;font-size:0.96em;">
+                    <div><strong>Source:</strong> <span data-field="source">${escapeHtml(resolveSourceLabel(job.source))}</span></div>
+                    <div><strong>Parser:</strong> <span data-field="parser">${escapeHtml(resolveParserLabel(job.parser))}</span></div>
+                </div>
+                <div style="margin-top:8px;color:#374151;font-size:0.96em;">
+                    <strong>Filter:</strong>
+                    <div data-field="filter" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;word-break:break-word;white-space:pre-wrap;line-height:1.4;">${escapeHtml(formatFilter(job))}</div>
+                </div>
+                <div style="margin-top:12px;color:#374151;font-size:0.96em;">
+                    <strong>Modifiers:</strong>
+                    <div data-field="modifiers" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:grid;gap:6px;line-height:1.4;">${formatModifiers(job.modifiers)}</div>
+                </div>
+                <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e5e7eb;color:#374151;font-size:0.95em;">
+                    <strong>Counts:</strong>
+                    <div data-field="counts" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:grid;gap:6px;line-height:1.4;">${formatCounts(job.counts)}</div>
+                </div>
+                <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:#1f2937;">
+                    <div style="font-weight:600;">Processed: <span data-field="processed">${job.processedCount ?? 0}</span></div>
+                    <div style="color:#6b7280;">Updated: <span data-field="updatedAt">${formatDate(job.updatedAt)}</span></div>
+                </div>
+                <div data-field="error" style="margin-top:8px;color:#b91c1c;display:${job.errorMessage ? 'block' : 'none'};">
+                    ${job.errorMessage || ''}
+                </div>
+            `;
+
+            if (highlightId && String(job.id) === String(highlightId)) {
+                card.style.border = '1px solid #60a5fa';
+                card.style.boxShadow = '0 0 0 2px #93c5fd';
+            }
+
+            jobsContainer.prepend(card);
+
+            return card;
+        };
+
+        const updateJobCard = (job) => {
+            const card = ensureJobCard(job);
+            card.querySelector('[data-field="source"]').textContent = resolveSourceLabel(job.source);
+            card.querySelector('[data-field="parser"]').textContent = resolveParserLabel(job.parser);
+            card.querySelector('[data-field="filter"]').textContent = formatFilter(job);
+            card.querySelector('[data-field="modifiers"]').innerHTML = formatModifiers(job.modifiers);
+            card.querySelector('[data-field="processed"]').textContent = job.processedCount ?? 0;
+            card.querySelector('[data-field="updatedAt"]').textContent = formatDate(job.updatedAt);
+            card.querySelector('[data-field="counts"]').innerHTML = formatCounts(job.counts);
+
+            const statusEl = card.querySelector('[data-field="status"]');
+            statusEl.textContent = job.status;
+            const statusStyle = statusStyles[job.status] || { background: '#e5e7eb', color: '#374151' };
+            statusEl.style.background = statusStyle.background;
+            statusEl.style.color = statusStyle.color;
+
+            const errorEl = card.querySelector('[data-field="error"]');
+            if (job.errorMessage) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = job.errorMessage;
+            } else {
+                errorEl.style.display = 'none';
+                errorEl.textContent = '';
+            }
+        };
+
+        const refreshJobs = async () => {
+            try {
+                const response = await fetch('{{ path('resend_jobs.status') }}');
+                if (!response.ok) return;
+                const payload = await response.json();
+                if (!payload?.jobs) return;
+                payload.jobs.forEach(updateJobCard);
+            } catch (error) {
+                // Silently ignore to avoid breaking the UI on transient failures.
+            }
+        };
+
+        setInterval(refreshJobs, 3000);
+        refreshJobs();
+    </script>
+{% endblock %}
