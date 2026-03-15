@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Sender;
+namespace App\Service\LogResender\Sender;
 
 use App\Constant\Enum\ResultCategory;
 

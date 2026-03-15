@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console;
 
 use App\Service\LogResender\LogResender;
-use App\Service\Sender\Sender;
+use App\Service\LogResender\Progress\CliProgressReporter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ResendLogsCommand extends Command
 {
     public function __construct(
-        private LogResender $logResender,
+        private readonly LogResender $logResender,
     ) {
         parent::__construct();
     }
@@ -55,8 +55,6 @@ class ResendLogsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        Sender::toggleProgressTracking(true);
-
         $filter = $input->getOption('filter');
         $source = $input->getOption('source');
         $parser = $input->getOption('parser');
@@ -71,7 +69,7 @@ class ResendLogsCommand extends Command
             throw new \Exception('Parser option is required');
         }
 
-        $results = $this->logResender->resend($source, $filter, $parser, $modifiers);
+        $results = $this->logResender->resend($source, $filter, $parser, $modifiers, new CliProgressReporter($output));
 
         foreach ($results->getCounts() ?? [] as $id => $count) {
             $output->writeln("<info>{$id}: {$count}</info>");
