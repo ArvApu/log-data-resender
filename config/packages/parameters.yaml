@@ -12,3 +12,6 @@ parameters:
       secret: '%env(AWS_SECRET)%'
 
   app.webservices.host: 'https://pos-etail.wallmob.com'
+
+  app.storage.local.path: '%kernel.project_dir%/var/storage'
+  app.storage.local.resend_job_path: '%app.storage.local.path%/resend_jobs'
