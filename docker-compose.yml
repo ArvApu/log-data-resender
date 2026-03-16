@@ -1,21 +1,74 @@
-version: '3'
-
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-15}-alpine
+  app:
+    container_name: app
+    build:
+      context: .
+      target: app
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      APP_ENV: ${APP_ENV:-dev}
+      APP_DEBUG: ${APP_DEBUG:-1}
+      DATABASE_HOST: database
+      DATABASE_NAME: ${POSTGRES_DB:-resender}
+      DATABASE_USER: ${POSTGRES_USER:-resender}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      DATABASE_SERVER_VERSION: ${POSTGRES_VERSION:-15}
+      MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
+    depends_on:
+      - database
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - ./:/var/www/html:cached
+
+  consumer:
+    container_name: consumer
+    build:
+      context: .
+      target: app
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      APP_DEBUG: ${APP_DEBUG:-1}
+      DATABASE_HOST: database
+      DATABASE_NAME: ${POSTGRES_DB:-resender}
+      DATABASE_USER: ${POSTGRES_USER:-resender}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      DATABASE_SERVER_VERSION: ${POSTGRES_VERSION:-15}
+      MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
+    depends_on:
+      - database
+      - elasticmq
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv"]
+    volumes:
+      - ./:/var/www/html:cached
+
+  web-server:
+    container_name: web-server
+    build:
+      context: .
+      target: web
+    depends_on:
+      - app
+    ports:
+      - "8080:80"
+
+  database:
+    container_name: database
+    image: postgres:${POSTGRES_VERSION:-15}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-resender}
+      POSTGRES_USER: ${POSTGRES_USER:-resender}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+    ports:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  elasticmq:
+    container_name: elasticmq
+    image: softwaremill/elasticmq-native
+    ports:
+      - "9324:9324" # SQS API
+      - "9325:9325" # Web UI
+    volumes:
+      - ./docker/elasticmq/elasticmq.conf:/opt/elasticmq.conf
 
 volumes:
-###> doctrine/doctrine-bundle ###
-  database_data:
-###< doctrine/doctrine-bundle ###
+  pgdata:
