@@ -33,7 +33,7 @@ final class Version20260315090000 extends AbstractMigration
                 failed_at INTEGER NOT NULL,
                 master_user_id VARCHAR(255) DEFAULT NULL,
                 session VARCHAR(255) NOT NULL,
-                response_data TEXT DEFAULT NULL,
+                response_data JSON DEFAULT NULL,
                 CONSTRAINT FK_6AA3CB1CEA675D86 FOREIGN KEY (log_id) REFERENCES log (id)
             )
         ');
@@ -48,10 +48,10 @@ final class Version20260315090000 extends AbstractMigration
                 status VARCHAR(32) NOT NULL,
                 source VARCHAR(255) NOT NULL,
                 parser VARCHAR(255) NOT NULL,
-                modifiers TEXT NOT NULL,
+                modifiers JSON NOT NULL,
                 filter TEXT DEFAULT NULL,
                 filter_file_path VARCHAR(1024) DEFAULT NULL,
-                counts TEXT NOT NULL,
+                counts JSON NOT NULL,
                 processed_count INTEGER NOT NULL,
                 total_count INTEGER DEFAULT NULL,
                 error_message TEXT DEFAULT NULL,

@@ -9,9 +9,11 @@ services:
     environment:
       PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
       MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
     depends_on:
       - database
+      - elasticmq
     volumes:
       - ./:/var/www/html:cached
 
@@ -27,6 +29,7 @@ services:
       XDEBUG_TRIGGER: ${XDEBUG_TRIGGER:-}
       PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
       MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
       # Following AWS_* values works as workaround for SQS transport SDK.
       # If they are not set SDK tries to fetch metadata from EC2 instance and hangs for a while.
@@ -60,7 +63,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - $HOME/.postgres/data:/var/lib/postgresql/data
 
   elasticmq:
     container_name: elasticmq
@@ -70,6 +73,3 @@ services:
       - "9325:9325" # Web UI
     volumes:
       - ./docker/elasticmq/elasticmq.conf:/opt/elasticmq.conf
-
-volumes:
-  pgdata:

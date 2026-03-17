@@ -1,15 +1,17 @@
 ARG PHP_VERSION=8.5
 ARG DEV_MODE=0
 
+FROM composer:2 AS composer
+
 FROM php:${PHP_VERSION}-cli-alpine AS vendor
 ARG DEV_MODE
 WORKDIR /app
 
 RUN apk add --no-cache \
     git \
-    unzip \
-    curl \
-  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    unzip
+
+ COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
 # Copy only the files needed for composer install to leverage Docker cache
 COPY composer.json composer.lock symfony.lock ./
