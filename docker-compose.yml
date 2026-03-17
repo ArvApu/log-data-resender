@@ -23,8 +23,8 @@ services:
       args:
         DEV_MODE: 1
     environment:
-      # TODO: find a way to trigger xdebug breakpoint on consumer
-      XDEBUG_MODE: off
+      # To use xdebug, set XDEBUG_TRIGGER to PHPSTORM and restart the container (via compose of course)
+      XDEBUG_TRIGGER: ${XDEBUG_TRIGGER:-}
       PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
       MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
