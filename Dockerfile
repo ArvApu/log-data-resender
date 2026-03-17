@@ -1,6 +1,8 @@
 ARG PHP_VERSION=8.5
+ARG DEV_MODE=0
 
 FROM php:${PHP_VERSION}-cli-alpine AS vendor
+ARG DEV_MODE
 WORKDIR /app
 
 RUN apk add --no-cache \
@@ -11,27 +13,33 @@ RUN apk add --no-cache \
 
 # Copy only the files needed for composer install to leverage Docker cache
 COPY composer.json composer.lock symfony.lock ./
-RUN composer install --prefer-dist --no-scripts --no-progress --no-interaction
+
+RUN if [ "$DEV_MODE" = "1" ]; then \
+      composer install --prefer-dist --no-scripts --no-progress --no-interaction; \
+    else \
+      composer install --prefer-dist --no-dev --no-scripts --no-progress --no-interaction; \
+    fi
 
 COPY . .
 
-RUN composer dump-autoload --classmap-authoritative
+RUN if [ "$DEV_MODE" = "1" ]; then \
+      composer dump-autoload; \
+    else \
+      composer dump-autoload --classmap-authoritative; \
+    fi
 
 FROM php:${PHP_VERSION}-fpm-alpine AS app
+ARG DEV_MODE
 WORKDIR /var/www/html
 
-RUN apk add --no-cache \
-    icu-libs \
-    libpq \
-  && apk add --no-cache --virtual .build-deps \
-    $PHPIZE_DEPS \
-    icu-dev \
-    postgresql-dev \
-  && docker-php-ext-install -j$(nproc) pdo_pgsql intl \
-  && docker-php-ext-enable opcache || true \
-  && apk del .build-deps
+COPY docker/php/install-php-ext.sh /usr/local/bin/install-php-ext.sh
+RUN chmod +x /usr/local/bin/install-php-ext.sh \
+  && /usr/local/bin/install-php-ext.sh
 
 COPY docker/php/conf.d/ /usr/local/etc/php/conf.d/
+COPY docker/php/configure-php-ini.sh /usr/local/bin/configure-php-ini.sh
+RUN chmod +x /usr/local/bin/configure-php-ini.sh \
+  && /usr/local/bin/configure-php-ini.sh
 COPY docker/php/fpm/zz-app.conf /usr/local/etc/php-fpm.d/zz-app.conf
 
 COPY --from=vendor /app /var/www/html

@@ -2,7 +2,7 @@
 .gitignore
 .idea
 .DS_Store
-!.env
+.env
 .env.*
 .phpunit.cache
 .phpunit.result.cache

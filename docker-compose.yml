@@ -4,9 +4,13 @@ services:
     build:
       context: .
       target: app
+      args:
+        DEV_MODE: 1
     environment:
       APP_ENV: ${APP_ENV:-dev}
       APP_DEBUG: ${APP_DEBUG:-1}
+      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
+      PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
       DATABASE_NAME: ${POSTGRES_DB:-resender}
       DATABASE_USER: ${POSTGRES_USER:-resender}
@@ -23,9 +27,13 @@ services:
     build:
       context: .
       target: app
+      args:
+        DEV_MODE: 1
     environment:
       APP_ENV: ${APP_ENV:-dev}
       APP_DEBUG: ${APP_DEBUG:-1}
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
       DATABASE_NAME: ${POSTGRES_DB:-resender}
       DATABASE_USER: ${POSTGRES_USER:-resender}
@@ -57,7 +65,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-resender}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
     ports:
-      - "5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
