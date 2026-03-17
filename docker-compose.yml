@@ -28,6 +28,11 @@ services:
       PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
       MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
+      # Following AWS_* values works as workaround for SQS transport SDK.
+      # If they are not set SDK tries to fetch metadata from EC2 instance and hangs for a while.
+      # With these values set, it works without any delay.
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
     depends_on:
       - database
       - elasticmq
