@@ -7,15 +7,8 @@ services:
       args:
         DEV_MODE: 1
     environment:
-      APP_ENV: ${APP_ENV:-dev}
-      APP_DEBUG: ${APP_DEBUG:-1}
-      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
       PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
-      DATABASE_NAME: ${POSTGRES_DB:-resender}
-      DATABASE_USER: ${POSTGRES_USER:-resender}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      DATABASE_SERVER_VERSION: ${POSTGRES_VERSION:-15}
       MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
     depends_on:
       - database
@@ -30,15 +23,10 @@ services:
       args:
         DEV_MODE: 1
     environment:
-      APP_ENV: ${APP_ENV:-dev}
-      APP_DEBUG: ${APP_DEBUG:-1}
-      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      # TODO: find a way to trigger xdebug breakpoint on consumer
+      XDEBUG_MODE: off
       PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-serverName=resender}
       DATABASE_HOST: database
-      DATABASE_NAME: ${POSTGRES_DB:-resender}
-      DATABASE_USER: ${POSTGRES_USER:-resender}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      DATABASE_SERVER_VERSION: ${POSTGRES_VERSION:-15}
       MESSENGER_TRANSPORT_DSN: sqs://elasticmq:9324/default?sslmode=disable
     depends_on:
       - database
