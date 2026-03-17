@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.DS_Store
+.env
+.env.*
+.phpunit.cache
+.phpunit.result.cache
+.scannerwork
+var
+vendor
+node_modules
+
+Dockerfile
+**/docker-compose*.yml
