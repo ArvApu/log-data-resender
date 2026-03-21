@@ -10,5 +10,5 @@ enum ResultCategory: string
     case NOT_POST = 'not_a_post_request';
     case MISSING_MASTER_USER_ID = 'missing_master_user_id';
     case FAILED = 'failed';
-    case ALREADY_EXISTED = 'failed_already_existed';
+    case ALREADY_EXISTS = 'already_exists';
 }

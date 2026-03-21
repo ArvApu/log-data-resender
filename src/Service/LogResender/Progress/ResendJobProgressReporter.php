@@ -17,8 +17,8 @@ class ResendJobProgressReporter implements ProgressReporterInterface
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ResendJob $job,
-        private readonly int $batchSize = 50,
-        private readonly float $minIntervalSeconds = 3.0,
+        private readonly int $batchSize = 5,
+        private readonly float $minIntervalSeconds = 5.0,
     ) {
     }
 

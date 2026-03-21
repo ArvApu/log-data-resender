@@ -99,7 +99,7 @@ class Sender
             }
 
             if (isset($content->errors->id[0]) && str_contains($content->errors->id[0], 'has already been taken')) {
-                $results->increment(ResultCategory::ALREADY_EXISTED);
+                $results->increment(ResultCategory::ALREADY_EXISTS);
 
                 return;
             }
