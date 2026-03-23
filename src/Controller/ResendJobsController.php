@@ -9,7 +9,9 @@ use App\Service\LogModifier\LogModifierInterface;
 use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
 use App\Service\LogProvider\Source\LogsProviderSourceInterface;
 use App\Repository\ResendJobRepository;
+use App\Constant\Enum\ResendJobStatus;
 use App\Service\ServiceMetadataProvider\ServiceMetadataProvider;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -99,5 +101,24 @@ class ResendJobsController extends AbstractController
         return $this->json([
             'jobs' => $payload,
         ]);
+    }
+
+    #[Route('/resend-jobs/{id}/cancel', name: 'resend_jobs.cancel', methods: [Request::METHOD_POST])]
+    public function cancel(ResendJob $job, EntityManagerInterface $entityManager): JsonResponse
+    {
+        if ($job->getStatus() === ResendJobStatus::CANCELLED) {
+            return $this->json(['status' => $job->getStatusValue()]);
+        }
+
+        if ($job->getStatus() === ResendJobStatus::COMPLETED || $job->getStatus() === ResendJobStatus::FAILED) {
+            return $this->json(['status' => $job->getStatusValue()]);
+        }
+
+        $job->setStatus(ResendJobStatus::CANCELLED)
+            ->setUpdatedAt(new \DateTimeImmutable());
+
+        $entityManager->flush();
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }

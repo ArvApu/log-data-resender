@@ -7,6 +7,7 @@ namespace App\Service\LogResender\Sender;
 use App\Constant\Enum\ResultCategory;
 use App\Data\ValueObject\ParsedLog;
 use App\Log\SenderLogger;
+use App\Service\LogResender\Cancellation\CancellationCheckerInterface;
 use App\Service\LogResender\Progress\ProgressReporterInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,15 +33,17 @@ class Sender
     public function sendData(
         iterable $parsedLogs,
         ?ProgressReporterInterface $progressReporter = null,
+        ?CancellationCheckerInterface $cancellationChecker = null,
     ): ResultsAccumulator
     {
         $results = new ResultsAccumulator();
 
         try {
             foreach ($parsedLogs as $index => $parsedLog) {
-                $results->increment(ResultCategory::COMPLETED);
-
+                $cancellationChecker?->check();
                 $progressReporter?->report($results);
+
+                $results->increment(ResultCategory::COMPLETED);
 
                 // Protects from accidentally changing data with update methods (PATCH/PUT).
                 if ($parsedLog->isSecuredForPost() && $parsedLog->getMethod() !== Request::METHOD_POST) {

@@ -10,4 +10,5 @@ enum ResendJobStatus: string
     case RUNNING = 'running';
     case COMPLETED = 'completed';
     case FAILED = 'failed';
+    case CANCELLED = 'cancelled';
 }

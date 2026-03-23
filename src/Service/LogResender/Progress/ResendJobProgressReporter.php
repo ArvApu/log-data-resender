@@ -9,7 +9,7 @@ use App\Entity\ResendJob;
 use App\Service\LogResender\Sender\ResultsAccumulator;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ResendJobProgressReporter implements ProgressReporterInterface
+final class ResendJobProgressReporter implements ProgressReporterInterface
 {
     private int $lastProcessed = 0;
     private float $lastFlushAt = 0.0;

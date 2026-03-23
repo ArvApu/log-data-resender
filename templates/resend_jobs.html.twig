@@ -17,6 +17,7 @@
             {% else %}
                 {% for job in jobs %}
                     {% set isHighlighted = highlight_job_id is not null and highlight_job_id == job.id %}
+                    {% set showCancel = job.status.value in ['queued', 'running'] %}
                     <div data-job-id="{{ job.id }}" style="background:#fff;border-radius:14px;border:1px solid {{ isHighlighted ? '#60a5fa' : '#e5e7eb' }};padding:18px 20px;margin-bottom:16px;box-shadow:{{ isHighlighted ? '0 0 0 2px #93c5fd' : '0 2px 12px #0001' }};">
                         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;">
                             <div style="font-weight:700;color:#111827;font-size:1.1em;">Job #{{ job.id }}</div>
@@ -67,9 +68,17 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:#1f2937;">
-                            <div style="font-weight:600;">Processed: <span data-field="processed">{{ job.processedCount }}</span></div>
-                            <div style="color:#6b7280;">Updated: <span data-field="updatedAt">{{ job.updatedAt|date('Y-m-d H:i:s') }}</span></div>
+                        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;color:#1f2937;">
+                            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+                                <div style="font-weight:600;">Processed: <span data-field="processed">{{ job.processedCount }}</span></div>
+                                <div style="color:#6b7280;">Updated: <span data-field="updatedAt">{{ job.updatedAt|date('Y-m-d H:i:s') }}</span></div>
+                            </div>
+                            <button
+                                data-action="cancel"
+                                style="display:{{ showCancel ? 'inline-flex' : 'none' }};align-items:center;gap:6px;border:0;background:#fee2e2;color:#991b1b;padding:6px 12px;border-radius:999px;font-weight:700;font-size:0.85em;cursor:pointer;"
+                            >
+                                Cancel
+                            </button>
                         </div>
                         <div data-field="error" style="margin-top:8px;color:#b91c1c;display:{{ job.errorMessage ? 'block' : 'none' }};">
                             {{ job.errorMessage }}
@@ -89,6 +98,7 @@
             running: { background: '#dbeafe', color: '#1d4ed8' },
             completed: { background: '#dcfce7', color: '#166534' },
             failed: { background: '#fee2e2', color: '#991b1b' },
+            cancelled: { background: '#e5e7eb', color: '#374151' },
         };
 
         const formatDate = (value) => {
@@ -111,6 +121,7 @@
         const resolveSourceLabel = (value) => sourceLabels?.[value] ?? value;
         const resolveParserLabel = (value) => parserLabels?.[value] ?? value;
         const resolveModifierLabel = (value) => modifierLabels?.[value] ?? value;
+        const canCancel = (job) => ['queued', 'running'].includes(job.status);
 
         const formatCounts = (counts) => {
             const entries = Object.entries(counts || {});
@@ -183,8 +194,13 @@
                     <div data-field="counts" style="margin-top:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:grid;gap:6px;line-height:1.4;">${formatCounts(job.counts)}</div>
                 </div>
                 <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:#1f2937;">
-                    <div style="font-weight:600;">Processed: <span data-field="processed">${job.processedCount ?? 0}</span></div>
-                    <div style="color:#6b7280;">Updated: <span data-field="updatedAt">${formatDate(job.updatedAt)}</span></div>
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+                        <div style="font-weight:600;">Processed: <span data-field="processed">${job.processedCount ?? 0}</span></div>
+                        <div style="color:#6b7280;">Updated: <span data-field="updatedAt">${formatDate(job.updatedAt)}</span></div>
+                    </div>
+                    <button data-action="cancel" style="display:${canCancel(job) ? 'inline-flex' : 'none'};align-items:center;gap:6px;border:0;background:#fee2e2;color:#991b1b;padding:6px 12px;border-radius:999px;font-weight:700;font-size:0.85em;cursor:pointer;">
+                        Cancel
+                    </button>
                 </div>
                 <div data-field="error" style="margin-top:8px;color:#b91c1c;display:${job.errorMessage ? 'block' : 'none'};">
                     ${job.errorMessage || ''}
@@ -225,6 +241,13 @@
                 errorEl.style.display = 'none';
                 errorEl.textContent = '';
             }
+
+            const cancelButton = card.querySelector('[data-action="cancel"]');
+            if (cancelButton) {
+                cancelButton.style.display = canCancel(job) ? 'inline-flex' : 'none';
+                cancelButton.disabled = false;
+                cancelButton.textContent = 'Cancel';
+            }
         };
 
         const refreshJobs = async () => {
@@ -241,5 +264,27 @@
 
         setInterval(refreshJobs, 5000);
         refreshJobs();
+
+        jobsContainer?.addEventListener('click', async (event) => {
+            const button = event.target.closest('[data-action="cancel"]');
+            if (!button) return;
+
+            const card = button.closest('[data-job-id]');
+            const jobId = card?.dataset?.jobId;
+            if (!jobId) return;
+
+            button.disabled = true;
+            button.textContent = 'Cancelling...';
+
+            try {
+                const response = await fetch(`/resend-jobs/${jobId}/cancel`, { method: 'POST' });
+                if (response.ok) {
+                    await refreshJobs();
+                }
+            } catch (error) {
+                button.disabled = false;
+                button.textContent = 'Cancel';
+            }
+        });
     </script>
 {% endblock %}

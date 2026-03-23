@@ -8,7 +8,7 @@ use App\Constant\Enum\ResultCategory;
 use App\Service\LogResender\Sender\ResultsAccumulator;
 use Symfony\Component\Console\Output\OutputInterface;
 
-readonly class CliProgressReporter implements ProgressReporterInterface
+final readonly class CliProgressReporter implements ProgressReporterInterface
 {
     public function __construct(
         private OutputInterface $output,

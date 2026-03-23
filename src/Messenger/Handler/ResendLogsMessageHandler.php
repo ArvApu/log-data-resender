@@ -7,6 +7,8 @@ namespace App\Messenger\Handler;
 use App\Constant\Enum\ResendJobStatus;
 use App\Messenger\Message\ResendLogsMessage;
 use App\Repository\ResendJobRepository;
+use App\Exception\ResendJobCancelledException;
+use App\Service\LogResender\Cancellation\ResendJobCancellationChecker;
 use App\Service\LogResender\LogResender;
 use App\Service\LogResender\Progress\ResendJobProgressReporter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,11 +44,17 @@ readonly class ResendLogsMessageHandler
             $job->getParser(),
             $job->getModifiers(),
             new ResendJobProgressReporter($this->entityManager, $job),
+            new ResendJobCancellationChecker($this->entityManager, $job),
         );
 
-        if ($results?->getException() !== null) {
+        $exception = $results?->getException();
+
+        if ($exception instanceof ResendJobCancelledException) {
+            $job->setStatus(ResendJobStatus::CANCELLED)
+                ->setErrorMessage(null);
+        } elseif ($exception !== null) {
             $job->setStatus(ResendJobStatus::FAILED)
-                ->setErrorMessage($results->getException()->getMessage());
+                ->setErrorMessage($exception->getMessage());
         } else {
             $job->setStatus(ResendJobStatus::COMPLETED);
         }

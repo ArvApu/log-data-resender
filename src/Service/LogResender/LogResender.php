@@ -8,6 +8,7 @@ use App\Service\FileManager\FileManager;
 use App\Service\LogParser\LogsParser;
 use App\Service\LogProvider\LogsProvider;
 use App\Service\LogResender\Progress\ProgressReporterInterface;
+use App\Service\LogResender\Cancellation\CancellationCheckerInterface;
 use App\Service\LogResender\Sender\ResultsAccumulator;
 use App\Service\LogResender\Sender\Sender;
 
@@ -26,7 +27,8 @@ readonly class LogResender
         string $filter,
         string $parser,
         array $modifiers,
-        ?ProgressReporterInterface $progressReporter = null
+        ?ProgressReporterInterface $progressReporter = null,
+        ?CancellationCheckerInterface $cancellationChecker = null,
     ): ?ResultsAccumulator {
         $results = null;
 
@@ -40,12 +42,16 @@ readonly class LogResender
 
             $parsedLogs = $this->logsParser->parse($logs);
 
-            $results = $this->sender->sendData($parsedLogs, $progressReporter);
+            $results = $this->sender->sendData($parsedLogs, $progressReporter, $cancellationChecker);
 
             // Cleanup to save memory
             unset($parsedLogs);
 
             $this->filesManager->putContentsToFile("_counts-{$key}.json", json_encode($results->getCounts()));
+
+            if ($results->getException() !== null) {
+                break;
+            }
         }
 
         $progressReporter?->finish($results);
