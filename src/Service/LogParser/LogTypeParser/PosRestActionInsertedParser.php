@@ -35,8 +35,9 @@ class PosRestActionInsertedParser implements LogTypeParserInterface
         $baseUrl = 'https://pos-etail.wallmob.com';
 
         $url = ($method === 'PUT' || $method === 'PATCH') ? "$baseUrl/{$resource}/$id" : "$baseUrl/{$resource}";
+        $body = json_encode($data->parameters, JSON_THROW_ON_ERROR);
 
-        return new ParsedLog(json_encode($data->parameters), $method, $url, $id, $masterUserId, false);
+        return new ParsedLog($body, $method, $url, $id, $masterUserId, false);
     }
 
     private function resolveMethod(int $typeId): ?string

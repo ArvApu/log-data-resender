@@ -30,8 +30,6 @@ readonly class LogResender
         ?ProgressReporterInterface $progressReporter = null,
         ?CancellationCheckerInterface $cancellationChecker = null,
     ): ?ResultsAccumulator {
-        $results = null;
-
         $this->logsParser->setParsingStrategy($parser);
         $this->logsParser->setParsingModifiers($modifiers);
 
@@ -52,6 +50,10 @@ readonly class LogResender
             if ($results->getException() !== null) {
                 break;
             }
+        }
+
+        if (!isset($results)) {
+            return null;
         }
 
         $progressReporter?->finish($results);

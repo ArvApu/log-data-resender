@@ -71,11 +71,11 @@ class ResendLogsCommand extends Command
 
         $results = $this->logResender->resend($source, $filter, $parser, $modifiers, new CliProgressReporter($output));
 
-        foreach ($results->getCounts() ?? [] as $id => $count) {
+        foreach ($results?->getCounts() ?? [] as $id => $count) {
             $output->writeln("<info>{$id}: {$count}</info>");
         }
 
-        if ($results->getException() !== null) {
+        if ($results?->getException() !== null) {
             $output->writeln("<error>{$results->getException()->getMessage()}</error>");
 
             return Command::FAILURE;

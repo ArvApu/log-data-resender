@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Util;
 
+use App\Data\ValueObject\ServiceMetadataInfo;
 use App\Service\LogModifier\LogModifierInterface;
 use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
 use App\Service\LogProvider\Source\LogsProviderFileSourceInterface;
@@ -17,6 +18,10 @@ final readonly class ResendLogViewDataProvider
     ) {
     }
 
+    /**
+     * @return ServiceMetadataInfo[]
+     * @throws \Exception
+     */
     public function buildModifiers(iterable $modifiers): array
     {
         $result = [];
@@ -26,26 +31,46 @@ final readonly class ResendLogViewDataProvider
                 continue;
             }
 
-            $result[$modifier->getId()] = $this->serviceMetadataProvider->getAttributeMetadata($modifier);
+            $metadata = $this->serviceMetadataProvider->getAttributeMetadata($modifier);
+
+            if ($metadata === null) {
+                continue;
+            }
+
+            $result[$modifier->getId()] = $metadata;
         }
 
         return $result;
     }
 
+    /**
+     * @return array<string, array{is_file: bool, metadata: ServiceMetadataInfo}>
+     * @throws \Exception
+     */
     public function buildSources(ServiceLocator $sources): array
     {
         $result = [];
 
         foreach ($sources->getIterator() as $id => $source) {
+            $metadata = $this->serviceMetadataProvider->getAttributeMetadata($source);
+
+            if ($metadata === null) {
+                continue;
+            }
+
             $result[$id] = [
                 'is_file' => $source instanceof LogsProviderFileSourceInterface,
-                'metadata' => $this->serviceMetadataProvider->getAttributeMetadata($source),
+                'metadata' => $metadata,
             ];
         }
 
         return $result;
     }
 
+    /**
+     * @return ServiceMetadataInfo[]
+     * @throws \Exception
+     */
     public function buildParsers(ServiceLocator $parsers): array
     {
         $result = [];
@@ -55,7 +80,13 @@ final readonly class ResendLogViewDataProvider
                 continue;
             }
 
-            $result[$id] = $this->serviceMetadataProvider->getAttributeMetadata($parser);
+            $metadata = $this->serviceMetadataProvider->getAttributeMetadata($parser);
+
+            if ($metadata === null) {
+                continue;
+            }
+
+            $result[$id] = $metadata;
         }
 
         return $result;

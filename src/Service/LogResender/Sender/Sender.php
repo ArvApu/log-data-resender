@@ -34,8 +34,7 @@ class Sender
         iterable $parsedLogs,
         ?ProgressReporterInterface $progressReporter = null,
         ?CancellationCheckerInterface $cancellationChecker = null,
-    ): ResultsAccumulator
-    {
+    ): ResultsAccumulator {
         $results = new ResultsAccumulator();
 
         try {

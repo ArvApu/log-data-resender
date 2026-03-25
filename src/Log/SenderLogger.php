@@ -23,7 +23,7 @@ class SenderLogger implements LoggerInterface
     {
         $log = new Log();
         $log->setLevel($level);
-        $log->setMessage($message);
+        $log->setMessage((string) $message);
         $log->setCreatedAt(new \DateTimeImmutable());
 
         $senderLog = new SenderLog();

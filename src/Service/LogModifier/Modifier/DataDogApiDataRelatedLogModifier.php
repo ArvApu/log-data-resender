@@ -55,7 +55,7 @@ readonly class DataDogApiDataRelatedLogModifier implements LogModifierInterface
                 'to' => $to,
                 'query' => "@user.id:$userId @request.request_id:$requestId @api.model:$apiModel \"Api data\"",
             ],
-        ]);
+        ], JSON_THROW_ON_ERROR);
 
         $relatedLog = $this->dataDogClient->getLog($filter);
 

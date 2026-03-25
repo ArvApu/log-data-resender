@@ -24,6 +24,8 @@ class JsonFileLogTypeParser implements LogTypeParserInterface
         $url = 'https://pos-etail.wallmob.com';
         $method = 'PATCH';
 
-        return new ParsedLog(json_encode($data), $method, "$url/{$resource}/{$data['id']}", $data['id'], $masterUserId);
+        $body = json_encode($data, JSON_THROW_ON_ERROR);
+
+        return new ParsedLog($body, $method, "$url/{$resource}/{$data['id']}", $data['id'], $masterUserId);
     }
 }

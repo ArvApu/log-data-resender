@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Data\ValueObject\ServiceMetadataInfo;
 use App\Entity\ResendJob;
 use App\Service\LogModifier\LogModifierInterface;
 use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
@@ -38,17 +39,18 @@ final class ResendJobsController extends AbstractController
         private readonly ResendJobRepository $resendJobRepository,
     ) {
         $this->sourceLabels = array_map(
+            /** @param array{metadata: ServiceMetadataInfo} $source */
             static fn (array $source): string => $source['metadata']->getLabel(),
             $resendLogViewDataProvider->buildSources($sourcesLocator),
         );
 
         $this->parserLabels = array_map(
-            static fn (object $metadata): string => $metadata->getLabel(),
+            static fn (ServiceMetadataInfo $metadata): string => $metadata->getLabel(),
             $resendLogViewDataProvider->buildParsers($parsersLocator),
         );
 
         $this->modifierLabels = array_map(
-            static fn (object $metadata): string => $metadata->getLabel(),
+            static fn (ServiceMetadataInfo $metadata): string => $metadata->getLabel(),
             $resendLogViewDataProvider->buildModifiers($modifiersLocator),
         );
     }

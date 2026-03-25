@@ -45,6 +45,11 @@ class LogsParser
 
             $parsedLog = $this->parser->parse($log);
 
+            if ($parsedLog === null) {
+                $parserClass = $this->parser::class;
+                throw new \RuntimeException("Unable to parse log [$parserClass]");
+            }
+
             yield $parsedLog;
         }
     }

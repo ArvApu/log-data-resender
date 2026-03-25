@@ -98,6 +98,10 @@ final class ResendLogsController extends AbstractController
         $entityManager->persist($job);
         $entityManager->flush();
 
+        if ($job->getId() === null) {
+            throw new \LogicException('Job ID should not be null after flush.');
+        }
+
         if ($file !== null) {
             $job->setFilterFilePath($storage->storeUploadedFilter($file, $job->getId()));
         }

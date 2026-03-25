@@ -90,7 +90,7 @@ class SenderLog
         return $this->responseData;
     }
 
-    public function setResponseData(?array $responseData): static
+    public function setResponseData(array $responseData): static
     {
         $this->responseData = $responseData;
 
