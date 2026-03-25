@@ -4,34 +4,51 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Service\Service;
 
+use App\Constant\Enum\ResultCategory;
 use App\Service\LogResender\Sender\ResultsAccumulator;
-use PHPUnit\Framework\Attributes\Depends;
 use Tests\UnitTestCase;
 
 class ResultsAccumulatorTest extends UnitTestCase
 {
-    public function testIncrement(): ResultsAccumulator
+    public function testIncrement(): void
     {
-        $stringId = 'fake_test';
         $accumulator = new ResultsAccumulator();
 
-        $accumulator->increment($stringId);
+        $accumulator->increment(ResultCategory::COMPLETED);
 
-        $this->assertEquals(1, $accumulator->getCount($stringId));
+        $this->assertSame(1, $accumulator->getCount(ResultCategory::COMPLETED));
 
-        $accumulator->increment($stringId);
-        $this->assertEquals(2, $accumulator->getCount($stringId));
-
-        return $accumulator;
+        $accumulator->increment(ResultCategory::COMPLETED);
+        $this->assertSame(2, $accumulator->getCount(ResultCategory::COMPLETED));
     }
 
-    #[Depends('testIncrement')]
-    public function testCanHaveMultipleCounts(ResultsAccumulator $accumulator): void
+    public function testIncrementWithCustomStep(): void
     {
-        $accumulator->increment('new_fake_count_1');
-        $accumulator->increment('new_fake_count_2');
+        $accumulator = new ResultsAccumulator();
 
-        $this->assertArrayHasKey('new_fake_count_1', $accumulator->getCounts());
-        $this->assertArrayHasKey('new_fake_count_2', $accumulator->getCounts());
+        $accumulator->increment(ResultCategory::FAILED, 3);
+
+        $this->assertSame(3, $accumulator->getCount(ResultCategory::FAILED));
+    }
+
+    public function testCanHaveMultipleCounts(): void
+    {
+        $accumulator = new ResultsAccumulator();
+
+        $accumulator->increment(ResultCategory::COMPLETED);
+        $accumulator->increment(ResultCategory::FAILED);
+
+        $this->assertArrayHasKey(ResultCategory::COMPLETED->value, $accumulator->getCounts());
+        $this->assertArrayHasKey(ResultCategory::FAILED->value, $accumulator->getCounts());
+    }
+
+    public function testSetException(): void
+    {
+        $accumulator = new ResultsAccumulator();
+        $exception = new \RuntimeException('Boom');
+
+        $accumulator->setException($exception);
+
+        $this->assertSame($exception, $accumulator->getException());
     }
 }
