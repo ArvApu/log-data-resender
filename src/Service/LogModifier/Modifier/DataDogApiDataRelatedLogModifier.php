@@ -91,4 +91,3 @@ readonly class DataDogApiDataRelatedLogModifier implements LogModifierInterface
         ];
     }
 }
-

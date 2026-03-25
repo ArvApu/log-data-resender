@@ -117,7 +117,6 @@ readonly class DataDogClient
                 'headers' => $headers,
                 'content' => $content,
             ];
-
         } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
             // TODO: log this exception to logger and then return null or stop whole process?
             die($e->getMessage());

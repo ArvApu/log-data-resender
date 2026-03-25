@@ -92,7 +92,7 @@ class Sender
 
             // To ensure the request is actually sent and to trigger any potential exceptions related to the request.
             $response->getHeaders();
-        } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
+        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
             $content = null;
             $response = method_exists($e, 'getResponse') ? $e->getResponse() : null;
 

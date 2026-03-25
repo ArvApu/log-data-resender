@@ -26,4 +26,3 @@ readonly class ServiceMetadataProvider
         return new ServiceMetadataInfo($metadata->label, $metadata->description);
     }
 }
-

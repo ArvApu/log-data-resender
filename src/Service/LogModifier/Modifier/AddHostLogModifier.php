@@ -25,9 +25,8 @@ readonly class AddHostLogModifier implements LogModifierInterface
      */
     public function modify(array $log): array
     {
-       $log['_host'] = $this->host;
+        $log['_host'] = $this->host;
 
-       return $log;
+        return $log;
     }
 }
-

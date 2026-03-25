@@ -35,4 +35,3 @@ class LogModificationPipeline
         $this->enabledModifiers = $modifierIds;
     }
 }
-

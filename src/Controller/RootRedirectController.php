@@ -16,4 +16,3 @@ final class RootRedirectController extends AbstractController
         return $this->redirectToRoute('resend_logs.view');
     }
 }
-
