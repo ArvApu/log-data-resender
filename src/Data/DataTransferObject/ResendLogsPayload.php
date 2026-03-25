@@ -12,6 +12,9 @@ final readonly class ResendLogsPayload
         public string $source,
         public string $parser,
         public string $filter = '',
+        public ?string $datePreset = null,
+        public ?string $dateFrom = null,
+        public ?string $dateTo = null,
         #[
             Assert\Unique,
         ]

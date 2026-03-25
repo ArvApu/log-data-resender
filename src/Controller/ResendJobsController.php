@@ -10,7 +10,7 @@ use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
 use App\Service\LogProvider\Source\LogsProviderSourceInterface;
 use App\Repository\ResendJobRepository;
 use App\Constant\Enum\ResendJobStatus;
-use App\Service\ServiceMetadataProvider\ServiceMetadataProvider;
+use App\Service\Util\ResendLogViewDataProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class ResendJobsController extends AbstractController
+final class ResendJobsController extends AbstractController
 {
     private readonly array $modifierLabels;
     private readonly array $parserLabels;
@@ -34,27 +34,23 @@ class ResendJobsController extends AbstractController
         ServiceLocator $parsersLocator,
         #[AutowireIterator(LogModifierInterface::class)]
         iterable $modifiersLocator,
-        ServiceMetadataProvider $serviceMetadataProvider,
+        ResendLogViewDataProvider $resendLogViewDataProvider,
         private readonly ResendJobRepository $resendJobRepository,
     ) {
-        $modifiers = [];
-        foreach ($modifiersLocator as $modifier) {
-            $modifiers[$modifier->getId()] = $serviceMetadataProvider->getAttributeMetadata($modifier)->getLabel();
-        }
+        $this->sourceLabels = array_map(
+            static fn (array $source): string => $source['metadata']->getLabel(),
+            $resendLogViewDataProvider->buildSources($sourcesLocator),
+        );
 
-        $sources = [];
-        foreach ($sourcesLocator->getIterator() as $id => $source) {
-            $sources[$id] = $serviceMetadataProvider->getAttributeMetadata($source)->getLabel();
-        }
+        $this->parserLabels = array_map(
+            static fn (object $metadata): string => $metadata->getLabel(),
+            $resendLogViewDataProvider->buildParsers($parsersLocator),
+        );
 
-        $parsers = [];
-        foreach ($parsersLocator->getIterator() as $id => $parser) {
-            $parsers[$id] = $serviceMetadataProvider->getAttributeMetadata($parser)->getLabel();
-        }
-
-        $this->modifierLabels = $modifiers;
-        $this->sourceLabels = $sources;
-        $this->parserLabels = $parsers;
+        $this->modifierLabels = array_map(
+            static fn (object $metadata): string => $metadata->getLabel(),
+            $resendLogViewDataProvider->buildModifiers($modifiersLocator),
+        );
     }
 
     #[Route('/resend-jobs', name: 'resend_jobs.view', methods: [Request::METHOD_GET])]

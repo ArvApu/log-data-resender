@@ -6,10 +6,11 @@ namespace App\Service\LogProvider\Source;
 
 use App\Attribute\ServiceMetadata;
 use App\Client\CloudWatch\CloudWatchClient;
+use App\Constant\Enum\LogSource;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[
-    AsTaggedItem(index: 'cloudwatch'),
+    AsTaggedItem(index: LogSource::CLOUDWATCH->value),
     ServiceMetadata(label: 'CloudWatch', description: 'Provides logs from AWS CloudWatch.'),
 ]
 readonly class CloudWatchSource implements LogsProviderSourceInterface

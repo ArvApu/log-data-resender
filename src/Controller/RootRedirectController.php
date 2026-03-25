@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-class RootRedirectController extends AbstractController
+final class RootRedirectController extends AbstractController
 {
     #[Route(path: '/', name: 'root_redirect')]
     public function redirectToResendLogs(): RedirectResponse

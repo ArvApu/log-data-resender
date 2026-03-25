@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Constant\Enum\ContentTypeEnum;
+use App\Constant\Enum\ContentType;
+use App\Constant\Enum\DateRangePreset;
+use App\Constant\Enum\LogSource;
 use App\Constant\Enum\ResendJobStatus;
 use App\Data\DataTransferObject\ResendLogsPayload;
 use App\Entity\ResendJob;
 use App\Messenger\Message\ResendLogsMessage;
+use App\Service\DataDog\DataDogFilterNormalizer;
 use App\Service\LogModifier\LogModifierInterface;
 use App\Service\LogParser\LogTypeParser\LogTypeParserInterface;
-use App\Service\LogProvider\Source\LogsProviderFileSourceInterface;
 use App\Service\LogProvider\Source\LogsProviderSourceInterface;
-use App\Service\ServiceMetadataProvider\ServiceMetadataProvider;
+use App\Service\Util\ResendLogViewDataProvider;
 use App\Storage\ResendJobStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ResendLogsController extends AbstractController
+final class ResendLogsController extends AbstractController
 {
     private readonly array $modifiers;
     private readonly array $sources;
@@ -42,39 +44,17 @@ class ResendLogsController extends AbstractController
         ServiceLocator $parsersLocator,
         #[AutowireIterator(LogModifierInterface::class)]
         iterable $modifiersLocator,
-        ServiceMetadataProvider $serviceMetadataProvider,
+        ResendLogViewDataProvider $resendLogViewDataProvider,
     ) {
-        $modifiers = [];
-        foreach ($modifiersLocator as $modifier) {
-            $modifiers[$modifier->getId()] = $serviceMetadataProvider->getAttributeMetadata($modifier);
-        }
-
-        $sources = [];
-        foreach ($sourcesLocator->getIterator() as $id => $source) {
-            $sources[$id] = (object) [
-                'is_file' => $source instanceof LogsProviderFileSourceInterface,
-                'metadata' => $serviceMetadataProvider->getAttributeMetadata($source)
-            ];
-        }
-
-        $parsers = [];
-        foreach ($parsersLocator->getIterator() as $id => $parser) {
-            $parsers[$id] = $serviceMetadataProvider->getAttributeMetadata($parser);
-        }
-
-        $this->modifiers = $modifiers;
-        $this->sources = $sources;
-        $this->parsers = $parsers;
+        $this->modifiers = $resendLogViewDataProvider->buildModifiers($modifiersLocator);
+        $this->sources = $resendLogViewDataProvider->buildSources($sourcesLocator);
+        $this->parsers = $resendLogViewDataProvider->buildParsers($parsersLocator);
     }
 
     #[Route('/resend-logs', name: 'resend_logs.view', methods: [Request::METHOD_GET])]
-    public function viewForm(): Response {
-        return $this->render('resend_logs.html.twig', [
-            'sources' => $this->sources,
-            'parsers' => $this->parsers,
-            'modifiers' => $this->modifiers,
-            'error' => null,
-        ]);
+    public function viewForm(): Response
+    {
+        return $this->renderFormPage();
     }
 
     #[Route('/resend-logs', name: 'resend_logs.run', methods: [Request::METHOD_POST])]
@@ -82,36 +62,30 @@ class ResendLogsController extends AbstractController
         EntityManagerInterface $entityManager,
         ResendJobStorage $storage,
         MessageBusInterface $bus,
+        DataDogFilterNormalizer $dataDogFilterNormalizer,
         #[MapRequestPayload]
         ResendLogsPayload $payload,
         #[MapUploadedFile([
             new Assert\File(
                 maxSize: '3M',
-                mimeTypes: [
-                    ContentTypeEnum::JSON->value,
-                ],
+                mimeTypes: [ContentType::JSON->value],
             ),
         ])]
         ?UploadedFile $file = null,
     ): Response {
         $sourceInfo = $this->sources[$payload->source] ?? null;
-
         if ($sourceInfo === null) {
-            return $this->render('resend_logs.html.twig', [
-                'sources' => $this->sources,
-                'parsers' => $this->parsers,
-                'modifiers' => $this->modifiers,
-                'error' => 'Unknown source selected.',
-            ]);
+            return $this->renderFormPage('Unknown source selected.');
         }
 
-        if ($sourceInfo->is_file && $file === null) {
-            return $this->render('resend_logs.html.twig', [
-                'sources' => $this->sources,
-                'parsers' => $this->parsers,
-                'modifiers' => $this->modifiers,
-                'error' => 'File source requires a file upload.',
-            ]);
+        if ($sourceInfo['is_file'] && $file === null) {
+            return $this->renderFormPage('File source requires a file upload.');
+        }
+
+        try {
+            $filter = $this->resolveFilter($payload, $dataDogFilterNormalizer);
+        } catch (\InvalidArgumentException $exception) {
+            return $this->renderFormPage($exception->getMessage());
         }
 
         $job = new ResendJob()
@@ -119,18 +93,16 @@ class ResendLogsController extends AbstractController
             ->setSource($payload->source)
             ->setParser($payload->parser)
             ->setModifiers($payload->modifiers)
-            ->setFilter($payload->filter);
+            ->setFilter($filter);
 
         $entityManager->persist($job);
         $entityManager->flush();
 
         if ($file !== null) {
-            $filterPath = $storage->storeUploadedFilter($file, $job->getId());
-            $job->setFilterFilePath($filterPath);
+            $job->setFilterFilePath($storage->storeUploadedFilter($file, $job->getId()));
         }
 
         $job->setUpdatedAt(new \DateTimeImmutable());
-
         $entityManager->flush();
 
         $bus->dispatch(new ResendLogsMessage($job->getId()));
@@ -138,5 +110,32 @@ class ResendLogsController extends AbstractController
         return $this->redirectToRoute('resend_jobs.view', [
             'job' => $job->getId(),
         ]);
+    }
+
+    private function renderFormPage(?string $error = null): Response
+    {
+        return $this->render('resend_logs.html.twig', [
+            'sources' => $this->sources,
+            'parsers' => $this->parsers,
+            'modifiers' => $this->modifiers,
+            'date_presets' => DateRangePreset::cases(),
+            'error' => $error,
+        ]);
+    }
+
+    private function resolveFilter(
+        ResendLogsPayload $payload,
+        DataDogFilterNormalizer $dataDogFilterNormalizer,
+    ): string {
+        if ($payload->source !== LogSource::DATADOG->value) {
+            return $payload->filter;
+        }
+
+        return $dataDogFilterNormalizer->normalize(
+            $payload->filter,
+            $payload->datePreset,
+            $payload->dateFrom,
+            $payload->dateTo,
+        );
     }
 }

@@ -6,10 +6,11 @@ namespace App\Service\LogProvider\Source;
 
 use App\Attribute\ServiceMetadata;
 use App\Client\DataDog\DataDogClient;
+use App\Constant\Enum\LogSource;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[
-    AsTaggedItem(index: 'datadog'),
+    AsTaggedItem(index: LogSource::DATADOG->value),
     ServiceMetadata(label: 'DataDog', description: 'Provides logs from DataDog.'),
 ]
 readonly class DataDogSource implements LogsProviderSourceInterface

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Constant\Enum;
 
-enum ContentTypeEnum: string
+enum ContentType: string
 {
     case CSV = 'text/csv';
     case HTML = 'text/html';
